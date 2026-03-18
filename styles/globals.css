@@ -1642,7 +1642,7 @@
 	}
 }
 
-/* ─── CRM REAL ESTATE RESPONSIVE ─────────────────────────────────────────── */
+/* ─── WoolCraft RESPONSIVE ─────────────────────────────────────────── */
 @media (max-width: 1200px) {
 	.crm-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
 	.crm-charts-row { grid-template-columns: 1fr !important; }
