@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
@@ -29,13 +30,13 @@ const GOOGLE_FONTS_HREF =
 const GLOBAL_CSS = `
   * { box-sizing: border-box; }
   body { font-family: 'Mukta', sans-serif; background: #F7EDD8; margin: 0; }
-  .font-rozha { font-family: 'Rozha One', serif; }
+  .font-rozha { font-family: 'Comic Sans', serif; }
   .font-yatra { font-family: 'Yatra One', cursive; }
   .font-hindi { font-family: 'Tiro Devanagari Hindi', serif; }
   .font-mukta { font-family: 'Mukta', sans-serif; }
   ::-webkit-scrollbar { width: 6px; height: 4px; }
   ::-webkit-scrollbar-track { background: #EDD8B0; }
-  ::-webkit-scrollbar-thumb { background: #E8620A; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: rgb(240, 192, 64); border-radius: 3px; }
   .rangoli-border {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='24'%3E%3Cpath d='M0 12 L10 4 L20 12 L30 4 L40 12 L50 4 L60 12 L70 4 L80 12' stroke='%23E8620A' stroke-width='1.5' fill='none'/%3E%3Cpath d='M0 12 L10 20 L20 12 L30 20 L40 12 L50 20 L60 12 L70 20 L80 12' stroke='%23E8620A' stroke-width='1.5' fill='none'/%3E%3Ccircle cx='10' cy='4' r='2' fill='%23D4A017'/%3E%3Ccircle cx='30' cy='4' r='2' fill='%23D4A017'/%3E%3Ccircle cx='50' cy='4' r='2' fill='%23D4A017'/%3E%3Ccircle cx='70' cy='4' r='2' fill='%23D4A017'/%3E%3Ccircle cx='10' cy='20' r='2' fill='%230F7B6C'/%3E%3Ccircle cx='30' cy='20' r='2' fill='%230F7B6C'/%3E%3Ccircle cx='50' cy='20' r='2' fill='%230F7B6C'/%3E%3Ccircle cx='70' cy='20' r='2' fill='%230F7B6C'/%3E%3Ccircle cx='20' cy='12' r='3' fill='%23E8620A'/%3E%3Ccircle cx='40' cy='12' r='3' fill='%23E8620A'/%3E%3Ccircle cx='60' cy='12' r='3' fill='%23E8620A'/%3E%3C/svg%3E");
     background-repeat: repeat-x;
@@ -58,19 +59,29 @@ const GLOBAL_CSS = `
   .card-hover:hover { transform: translateY(-6px); }
   .stamp-rotate { transform: rotate(12deg); }
   .modal-scroll { overflow-y: auto; max-height: 90vh; }
-  .gallery-scroll { overflow-x: auto; scrollbar-width: thin; scrollbar-color: #E8620A #EDD8B0; }
+  .gallery-scroll { overflow-x: auto; scrollbar-width: thin; scrollbar-color: rgb(240, 192, 64) #EDD8B0; }
+  .gallery-item { scroll-snap-align: start; scroll-margin-left: 14px; }
+  @media (max-width: 640px) {
+    .gallery-scroll {
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      padding-inline: 14px;
+      margin-inline: -14px;
+      gap: 10px !important;
+    }
+  }
 `;
 
 // ── DATA ──
 const T = {
 	en: {
-		langbar: "🇮🇳 woolcraft — हाथ से बनी ऊन कला, Jaipur",
+		langbar: "🇮🇳 woolcraft — हाथ से बनी ऊन कला, Kota",
 		nav: ["Products", "Our Story", "Gallery", "FAQ", "🛍 Order Now"],
-		heroTag: "Handmade in Jaipur, Rajasthan 🇮🇳",
+		heroTag: "Handmade in Kota, Rajasthan 🇮🇳",
 		heroTitle: "Wool Art,\nMade with Love.",
 		heroHindi: "ऊन की कला, हाथों की मेहनत",
 		heroSub:
-			"Sunflowers, roses, petals, leaves, gift boxes — every piece shaped from pure wool, one stitch at a time. No factory, no machine. Just one artisan's hands in Jaipur.",
+			"Sunflowers, roses, petals, leaves, gift boxes — every piece shaped from pure wool, one stitch at a time. No factory, no machine. Just one artisan's hands in Kota.",
 		heroCta1: "देखें Collection ↓",
 		heroCta2: "Order Karo →",
 		trust: [
@@ -89,7 +100,7 @@ const T = {
 		storyTitle: "One Home, One Artisan.",
 		storyHindi: "एक घर, एक कारीगर",
 		storySub:
-			"Every piece is made by a single pair of hands — not a factory, not a machine. Just patience, pure wool, and a craft tradition passed down through generations in Jaipur, Rajasthan.",
+			"Every piece is made by a single pair of hands — not a factory, not a machine. Just patience, pure wool, and a craft tradition passed down through generations in Kota, Rajasthan.",
 		features: [
 			{
 				icon: "scissors",
@@ -296,6 +307,7 @@ const T = {
 const PRODUCTS = [
 	{
 		id: 0,
+		image: "/products/sunflower.svg",
 		emoji: "🌻",
 		badge: { en: "Best\nSeller", hi: "सबसे\nलोकप्रिय" },
 		name: { en: "Woolwork Sunflower", hi: "ऊनी सूरजमुखी" },
@@ -322,6 +334,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 1,
+		image: "/products/rose.svg",
 		emoji: "🌹",
 		badge: { en: "Popular", hi: "पसंदीदा" },
 		name: { en: "Velvet Rose", hi: "मखमली गुलाब" },
@@ -345,6 +358,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 2,
+		image: "/products/leaves.svg",
 		emoji: "🍃",
 		badge: null,
 		name: { en: "Nature Leaves", hi: "प्रकृति के पत्ते" },
@@ -368,6 +382,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 3,
+		image: "/products/petals.svg",
 		emoji: "🌸",
 		badge: null,
 		name: { en: "Petal Clusters", hi: "पंखुड़ी समूह" },
@@ -394,6 +409,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 4,
+		image: "/products/gift-box.svg",
 		emoji: "🎁",
 		badge: { en: "Naya\nनया", hi: "नया\nNew" },
 		name: { en: "Wool Gift Box", hi: "ऊनी उपहार बॉक्स" },
@@ -420,6 +436,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 5,
+		image: "/products/petals.svg",
 		emoji: "💐",
 		badge: null,
 		name: { en: "Bouquet Bundle", hi: "गुलदस्ता" },
@@ -520,6 +537,20 @@ function FadeInSection({ children, delay = 0 }) {
 	);
 }
 
+function ProductImage({ p, sizes, priority = false }) {
+	if (!p?.image) return null;
+	return (
+		<Image
+			src={p.image}
+			alt={`${p.name?.en ?? "Product"} — woolcraft`}
+			fill
+			sizes={sizes}
+			priority={priority}
+			style={{ objectFit: "cover" }}
+		/>
+	);
+}
+
 // ── NAVBAR ──
 function Navbar({ lang, setLang, t, onOrder }) {
 	const [scrolled, setScrolled] = useState(false);
@@ -537,7 +568,7 @@ function Navbar({ lang, setLang, t, onOrder }) {
 	return (
 		<>
 			{/* Lang bar */}
-			<div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-1.5 bg-zinc-900/90">
+			<div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-1.5 bg-zinc-900 border-b border-zinc-800">
 				<span
 					className="text-xs font-hindi"
 					style={{
@@ -571,11 +602,10 @@ function Navbar({ lang, setLang, t, onOrder }) {
 			</div>
 			{/* Main nav */}
 			<nav
-				className={`fixed left-0 right-0 z-40 flex items-stretch justify-between px-6 transition-shadow ${scrolled ? "shadow-lg" : ""}`}
+				className={`fixed left-0 right-0 bg-zinc-900 border-b border-zinc-800 z-40 flex items-stretch justify-between px-6 transition-shadow ${scrolled ? "shadow-lg" : ""}`}
 				style={{
 					top: "30px",
-					background: "#7A1F1F",
-					borderBottom: "3px solid #E8620A",
+					borderBottom: "3px solid #27272a",
 				}}
 			>
 				<button
@@ -585,7 +615,7 @@ function Navbar({ lang, setLang, t, onOrder }) {
 					<span
 						className="font-rozha text-2xl"
 						style={{
-							fontFamily: "'Rozha One', serif",
+							fontFamily: "'Comic Sans', serif",
 							color: "#F7EDD8",
 							letterSpacing: "0.04em",
 						}}
@@ -593,7 +623,7 @@ function Navbar({ lang, setLang, t, onOrder }) {
 						woolcraft
 					</span>
 					<span
-						className="font-hindi text-base italic"
+						className="font-hindi text-base "
 						style={{
 							fontFamily: "'Tiro Devanagari Hindi', serif",
 							color: "#F0C040",
@@ -626,7 +656,7 @@ function Navbar({ lang, setLang, t, onOrder }) {
 							style={{
 								fontFamily: "'Mukta', sans-serif",
 								letterSpacing: "0.06em",
-								background: "#E8620A",
+								background: "rgb(240, 192, 64)",
 							}}
 						>
 							{t.nav[4]}
@@ -649,8 +679,8 @@ function Navbar({ lang, setLang, t, onOrder }) {
 						className="fixed z-30 left-0 right-0 flex flex-col"
 						style={{
 							top: "78px",
-							background: "#7A1F1F",
-							borderBottom: "2px solid #E8620A",
+							background: "#FFFFFF",
+							borderBottom: "2px solid rgb(240, 192, 64)",
 						}}
 					>
 						{t.nav.slice(0, 4).map((label, i) => (
@@ -673,7 +703,7 @@ function Navbar({ lang, setLang, t, onOrder }) {
 								setMobileOpen(false);
 							}}
 							className="px-6 py-3 text-left text-sm font-bold text-white"
-							style={{ background: "#E8620A" }}
+							style={{ background: "rgb(240, 192, 64)" }}
 						>
 							{t.nav[4]}
 						</button>
@@ -706,7 +736,7 @@ function Hero({ lang, t, onOrder, onProduct }) {
 					>
 						<div className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
 						<span
-							className="font-hindi text-sm italic"
+							className="font-hindi text-sm "
 							style={{
 								fontFamily: "'Tiro Devanagari Hindi', serif",
 								color: "#F0C040",
@@ -720,7 +750,7 @@ function Hero({ lang, t, onOrder, onProduct }) {
 						variants={fadeUp}
 						className="font-rozha leading-tight mb-2 whitespace-pre-line"
 						style={{
-							fontFamily: "'Rozha One', serif",
+							fontFamily: "'Comic Sans', serif",
 							fontSize: "clamp(2.8rem,5vw,5rem)",
 							color: "#F7EDD8",
 							letterSpacing: "0.02em",
@@ -730,7 +760,7 @@ function Hero({ lang, t, onOrder, onProduct }) {
 					</motion.h1>
 					<motion.div
 						variants={fadeUp}
-						className="font-hindi italic mb-5"
+						className="font-hindi  mb-5"
 						style={{
 							fontFamily: "'Tiro Devanagari Hindi', serif",
 							fontSize: "clamp(1.2rem,2.5vw,1.8rem)",
@@ -761,8 +791,8 @@ function Hero({ lang, t, onOrder, onProduct }) {
 							className="px-7 py-3 text-sm font-bold uppercase tracking-wider text-white transition-all hover:-translate-y-0.5"
 							style={{
 								fontFamily: "'Mukta', sans-serif",
-								background: "#E8620A",
-								borderBottom: "3px solid #7A1F1F",
+								background: "rgb(240, 192, 64)",
+								borderBottom: "3px solid #FFFFFF",
 								boxShadow: "0 4px 16px rgba(232,98,10,0.35)",
 							}}
 						>
@@ -800,20 +830,24 @@ function Hero({ lang, t, onOrder, onProduct }) {
 								style={{
 									background: "#F7EDD8",
 									border: "2px solid #EDD8B0",
-									boxShadow: "4px 4px 0 #E8620A",
+									boxShadow: "4px 4px 0 rgb(240, 192, 64)",
 									marginTop: i === 1 ? 20 : i === 2 ? -20 : 0,
 								}}
 							>
 								<div
-									className={`aspect-square flex items-center justify-center text-5xl bg-gradient-to-br ${PRODUCTS[idx].bg}`}
+									className={`aspect-square relative bg-gradient-to-br ${PRODUCTS[idx].bg}`}
 								>
-									{PRODUCTS[idx].emoji}
+									<ProductImage
+										p={PRODUCTS[idx]}
+										sizes="(max-width: 768px) 40vw, 180px"
+										priority={idx === 0}
+									/>
 								</div>
 								<div
 									className="px-3 py-2 text-xs font-bold uppercase tracking-wider"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "#4A2C10",
+										color: "rgb(240, 192, 64)",
 										borderTop: "1px solid #EDD8B0",
 									}}
 								>
@@ -833,7 +867,7 @@ function SareeStrip({ lang, t }) {
 	return (
 		<div
 			className="relative flex flex-wrap justify-center gap-8 px-6 py-4 overflow-hidden"
-			style={{ background: "#E8620A" }}
+			style={{ background: "rgb(240, 192, 64)" }}
 		>
 			<div
 				className="absolute inset-0 pointer-events-none opacity-20"
@@ -867,22 +901,22 @@ function Products({ lang, t, onProduct }) {
 		<section
 			id="products"
 			className="py-20 px-6"
-			style={{ background: "#F7EDD8" }}
+			style={{ background: "#000000" }}
 		>
 			<FadeInSection>
 				<div className="text-center mb-2">
 					<SectionTag>{t.prodTag}</SectionTag>
 					<h2
 						className="font-rozha text-4xl mb-1"
-						style={{ fontFamily: "'Rozha One', serif", color: "#7A1F1F" }}
+						style={{ fontFamily: "'Comic Sans', serif", color: "#FFFFFF" }}
 					>
 						{t.prodTitle}
 					</h2>
 					<div
-						className="font-hindi italic text-lg mb-3"
+						className="font-hindi  text-lg mb-3"
 						style={{
 							fontFamily: "'Tiro Devanagari Hindi', serif",
-							color: "#7A5030",
+							color: "rgb(240, 192, 64)",
 						}}
 					>
 						{t.prodHindi}
@@ -892,7 +926,7 @@ function Products({ lang, t, onProduct }) {
 						style={{
 							fontFamily: "'Mukta', sans-serif",
 							fontSize: "0.88rem",
-							color: "#4A2C10",
+							color: "rgb(240, 192, 64)",
 							lineHeight: 1.85,
 						}}
 					>
@@ -926,7 +960,7 @@ function ProductCard({ product: p, lang, t, onClick }) {
 			style={{
 				background: "#FFFDF8",
 				border: "1.5px solid #EDD8B0",
-				borderBottom: "4px solid #E8620A",
+				borderBottom: "4px solid rgb(240, 192, 64)",
 			}}
 		>
 			{/* Rainbow top bar on hover */}
@@ -934,20 +968,20 @@ function ProductCard({ product: p, lang, t, onClick }) {
 				className="absolute top-0 left-0 right-0 h-0.5 opacity-0 hover:opacity-100 transition-opacity"
 				style={{
 					background:
-						"linear-gradient(to right,#0F7B6C,#E8620A,#C4185C,#D4A017)",
+						"linear-gradient(to right,#0F7B6C,rgb(240, 192, 64),#C4185C,#D4A017)",
 				}}
 			/>
 			<div
-				className={`aspect-square flex items-center justify-center text-7xl relative bg-gradient-to-br ${p.bg}`}
+				className={`aspect-square relative bg-gradient-to-br ${p.bg}`}
 			>
 				{/* Mandala ring */}
 				<div className="absolute inset-3 border border-dashed border-red-900/10 rounded-full pointer-events-none" />
-				<span className="relative z-10">{p.emoji}</span>
+				<ProductImage p={p} sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 360px" />
 				{p.badge && (
 					<div
 						className="absolute top-2.5 right-2.5 w-12 h-12 rounded-full flex items-center justify-center text-center stamp-rotate z-20"
 						style={{
-							background: "#7A1F1F",
+							background: "#FFFFFF",
 							color: "#F7EDD8",
 							fontSize: "0.52rem",
 							fontWeight: 700,
@@ -965,22 +999,22 @@ function ProductCard({ product: p, lang, t, onClick }) {
 			<div className="p-4">
 				<div
 					className="font-yatra text-lg mb-0.5"
-					style={{ fontFamily: "'Yatra One', cursive", color: "#7A1F1F" }}
+					style={{ fontFamily: "'Yatra One', cursive", color: "#FFFFFF" }}
 				>
 					{p.name[lang]}
 				</div>
 				<div
-					className="font-hindi italic text-xs mb-2"
+					className="font-hindi  text-xs mb-2"
 					style={{
 						fontFamily: "'Tiro Devanagari Hindi', serif",
-						color: "#7A5030",
+						color: "rgb(240, 192, 64)",
 					}}
 				>
 					{p.name[lang === "en" ? "hi" : "en"]}
 				</div>
 				<p
 					className="text-xs font-light mb-3 leading-relaxed"
-					style={{ fontFamily: "'Mukta', sans-serif", color: "#4A2C10" }}
+					style={{ fontFamily: "'Mukta', sans-serif", color: "rgb(240, 192, 64)" }}
 				>
 					{p.desc[lang]}
 				</p>
@@ -1015,7 +1049,7 @@ function Story({ lang, t }) {
 		<section
 			id="story"
 			className="py-20 px-6 relative overflow-hidden paisley-bg"
-			style={{ background: "#7A1F1F" }}
+			style={{ background: "#000000" }}
 		>
 			<div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 				<FadeInSection>
@@ -1058,23 +1092,23 @@ function Story({ lang, t }) {
 								fontFamily: "'Mukta', sans-serif",
 							}}
 						>
-							🇮🇳 Jaipur · {lang === "en" ? "Est. 2020" : "2020 से"}
+							🇮🇳 Kota · {lang === "en" ? "Est. 2026" : "2026 से"}
 						</div>
 					</div>
 				</FadeInSection>
 				<div>
 					<FadeInSection>
 						<SectionTag>
-							<span style={{ color: "#F0C040" }}>{t.storyTag}</span>
+							<span style={{ color: "#ffffff" }}>{t.storyTag}</span>
 						</SectionTag>
 						<h2
 							className="font-rozha text-4xl mb-1"
-							style={{ fontFamily: "'Rozha One', serif", color: "#F7EDD8" }}
+							style={{ fontFamily: "'Comic Sans', serif", color: "#F7EDD8" }}
 						>
 							{t.storyTitle}
 						</h2>
 						<div
-							className="font-hindi italic text-xl mb-4"
+							className="font-hindi  text-xl mb-4"
 							style={{
 								fontFamily: "'Tiro Devanagari Hindi', serif",
 								color: "#F0C040",
@@ -1154,21 +1188,21 @@ function Gallery({ lang, t, onProduct }) {
 		<section
 			id="gallery"
 			className="py-20 px-6"
-			style={{ background: "#EDD8B0" }}
+			style={{ background: "#000000" }}
 		>
 			<FadeInSection>
 				<SectionTag>{t.galleryTag}</SectionTag>
 				<h2
 					className="font-rozha text-4xl mb-1"
-					style={{ fontFamily: "'Rozha One', serif", color: "#7A1F1F" }}
+					style={{ fontFamily: "'Comic Sans', serif", color: "#FFFFFF" }}
 				>
 					{t.galleryTitle}
 				</h2>
 				<div
-					className="font-hindi italic text-lg mb-3"
+					className="font-hindi  text-lg mb-3"
 					style={{
 						fontFamily: "'Tiro Devanagari Hindi', serif",
-						color: "#7A5030",
+						color: "rgb(240, 192, 64)",
 					}}
 				>
 					{t.galleryHindi}
@@ -1178,30 +1212,32 @@ function Gallery({ lang, t, onProduct }) {
 					style={{
 						fontFamily: "'Mukta', sans-serif",
 						fontSize: "0.88rem",
-						color: "#4A2C10",
+						color: "#ffffff",
 						lineHeight: 1.85,
 					}}
 				>
 					{t.gallerySub}
 				</p>
 			</FadeInSection>
-			<div className="gallery-scroll flex gap-3 pb-2">
+			<div className="gallery-scroll flex gap-3 pb-2 max-w-7xl">
 				{galleryItems.map((idx, i) => (
 					<motion.div
 						key={i}
 						whileHover={{ scale: 1.06 }}
 						onClick={() => onProduct(idx)}
-						className="flex-shrink-0 w-40 h-40 flex items-center justify-center text-6xl cursor-pointer relative"
+						className="gallery-item flex-shrink-0 w-40 h-40 cursor-pointer relative overflow-hidden"
 						style={{ background: "#FFFDF8", border: "2px solid #D4B878" }}
 					>
 						<div className="absolute inset-1.5 border border-dashed border-red-900/12 rounded-full pointer-events-none" />
-						<span className="relative z-10">{PRODUCTS[idx].emoji}</span>
+						<div className="absolute inset-0">
+							<ProductImage p={PRODUCTS[idx]} sizes="160px" />
+						</div>
 					</motion.div>
 				))}
 			</div>
 			<div
 				className="text-center mt-4 text-xs font-bold uppercase tracking-widest"
-				style={{ fontFamily: "'Mukta', sans-serif", color: "#7A5030" }}
+				style={{ fontFamily: "'Mukta', sans-serif", color: "rgb(240, 192, 64)" }}
 			>
 				←{" "}
 				{lang === "en"
@@ -1229,20 +1265,25 @@ function OrderCTA({ lang, t, onOrder }) {
 				}}
 			/>
 			<FadeInSection>
-				<SectionTag>
-					<span style={{ color: "rgba(247,237,216,0.7)" }}>{t.orderTag}</span>
-				</SectionTag>
+				<div
+					className="text-center mb-2"
+					style={{
+						fontFamily: "'Tiro Devanagari Hindi', serif",
+						fontSize: "0.9rem",
+					}}
+				>
+					<span style={{ color: "#ffffff" }}>{t.orderTag}</span>
+				</div>
 				<h2
 					className="font-rozha text-4xl mb-1"
-					style={{ fontFamily: "'Rozha One', serif", color: "#F7EDD8" }}
+					style={{ fontFamily: "Comic Sans", color: "#ffffff" }}
 				>
 					{t.orderTitle}
 				</h2>
 				<div
-					className="font-hindi italic text-xl mb-4"
+					className="font-hindi  text-xl mb-4"
 					style={{
-						fontFamily: "'Tiro Devanagari Hindi', serif",
-						color: "rgba(247,237,216,0.7)",
+						color: "#ffffff",
 					}}
 				>
 					{t.orderHindi}
@@ -1252,7 +1293,7 @@ function OrderCTA({ lang, t, onOrder }) {
 					style={{
 						fontFamily: "'Mukta', sans-serif",
 						fontSize: "0.88rem",
-						color: "rgba(247,237,216,0.72)",
+						color: "#ffffff",
 						lineHeight: 1.85,
 					}}
 				>
@@ -1305,23 +1346,23 @@ function OrderCTA({ lang, t, onOrder }) {
 }
 
 // ── FAQ ──
-function FAQ({ lang, t }) {
+function FAQ({ t }) {
 	const [open, setOpen] = useState(null);
 	return (
-		<section id="faq" className="mx-auto justify-center max-w-4xl py-20 px-6">
+		<section id="faq" className="mx-auto justify-center max-w-4xl py-20 px-6" style={{ background: "transparent" }}>
 			<FadeInSection>
 				<SectionTag>{t.faqTag}</SectionTag>
 				<h2
 					className="font-rozha text-4xl mb-1"
-					style={{ fontFamily: "'Rozha One', serif", color: "#7A1F1F" }}
+					style={{ fontFamily: "'Comic Sans', serif", color: "#ffffff" }}
 				>
 					{t.faqTitle}
 				</h2>
 				<div
-					className="font-hindi italic text-lg mb-3"
+					className="font-hindi  text-lg mb-3"
 					style={{
 						fontFamily: "'Tiro Devanagari Hindi', serif",
-						color: "#7A5030",
+						color: "#ffffff",
 					}}
 				>
 					{t.faqHindi}
@@ -1331,7 +1372,7 @@ function FAQ({ lang, t }) {
 					style={{
 						fontFamily: "'Mukta', sans-serif",
 						fontSize: "0.88rem",
-						color: "#4A2C10",
+						color: "rgb(240, 192, 64)",
 						lineHeight: 1.85,
 					}}
 				>
@@ -1345,17 +1386,15 @@ function FAQ({ lang, t }) {
 							className={`overflow-hidden transition-all`}
 							style={{
 								border: "1.5px solid #EDD8B0",
-								borderLeft: `4px solid ${open === i ? "#7A1F1F" : "#E8620A"}`,
-								background: "#F7EDD8",
+								borderLeft: `4px solid rgb(240, 192, 64)`,
 							}}
 						>
 							<button
 								onClick={() => setOpen(open === i ? null : i)}
-								className="w-full flex items-center justify-between gap-3 p-5 text-left transition-colors hover:bg-amber-50"
+								className="w-full flex items-center justify-between gap-3 p-5 text-left transition-colors"
 								style={{
-									fontFamily: "'Yatra One', cursive",
 									fontSize: "0.95rem",
-									color: "#7A1F1F",
+									color: "#ffffff",
 								}}
 							>
 								<span>{faq.q}</span>
@@ -1380,7 +1419,7 @@ function FAQ({ lang, t }) {
 											className="px-5 pb-5 text-sm font-light leading-relaxed"
 											style={{
 												fontFamily: "'Mukta', sans-serif",
-												color: "#4A2C10",
+												color: "rgb(240, 192, 64)",
 											}}
 										>
 											{faq.a}
@@ -1401,11 +1440,11 @@ function Footer({ lang, t, onOrder, onProduct }) {
 	const scrollTo = (id) =>
 		document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 	return (
-		<footer style={{ background: "#1A0A00" }}>
+		<footer style={{ background: "#000000" }}>
 			{/* Top bar */}
 			<div
 				className="flex flex-wrap items-center justify-between gap-4 px-6 py-4"
-				style={{ background: "#7A1F1F", borderBottom: "2px solid #E8620A" }}
+				style={{ background: "#000000", borderBottom: "2px solid #27272a" }}
 			>
 				<div>
 					<div
@@ -1425,7 +1464,7 @@ function Footer({ lang, t, onOrder, onProduct }) {
 						}}
 					>
 						{lang === "en"
-							? "Handcrafted wool art from Jaipur, Rajasthan"
+							? "Handcrafted wool art from Kota, Rajasthan"
 							: "जयपुर, राजस्थान से हस्तनिर्मित ऊन कला"}
 					</div>
 				</div>
@@ -1446,18 +1485,18 @@ function Footer({ lang, t, onOrder, onProduct }) {
 				<div>
 					<div
 						className="font-rozha text-2xl mb-1"
-						style={{ fontFamily: "'Rozha One', serif", color: "#F7EDD8" }}
+						style={{ fontFamily: "'Comic Sans', serif", color: "#F7EDD8" }}
 					>
 						woolcraft
 					</div>
 					<div
-						className="font-hindi text-sm italic mb-3"
+						className="font-hindi text-sm  mb-3"
 						style={{
 							fontFamily: "'Tiro Devanagari Hindi', serif",
 							color: "#F0C040",
 						}}
 					>
-						ऊन फूल · Jaipur
+						ऊन फूल · Kota
 					</div>
 					<p
 						className="text-xs font-light leading-loose mb-4"
@@ -1467,7 +1506,7 @@ function Footer({ lang, t, onOrder, onProduct }) {
 						}}
 					>
 						{lang === "en"
-							? "Handcrafted wool art — flowers, leaves, boxes and more — made with patience and love in Jaipur. Every piece tells a story of devotion."
+							? "Handcrafted wool art — flowers, leaves, boxes and more — made with patience and love in Kota. Every piece tells a story of devotion."
 							: "हस्तनिर्मित ऊनी कला — फूल, पत्तियाँ, डिब्बे और भी — जयपुर में प्यार से बनाई।"}
 					</p>
 					<div className="flex gap-2">
@@ -1564,7 +1603,7 @@ function Footer({ lang, t, onOrder, onProduct }) {
 								icon: MapPin,
 								text:
 									lang === "en"
-										? "Jaipur, Rajasthan 302001"
+										? "Kota, Rajasthan 302001"
 										: "जयपुर, राजस्थान 302001",
 							},
 							{ icon: Phone, text: "+91 9413732541" },
@@ -1583,7 +1622,7 @@ function Footer({ lang, t, onOrder, onProduct }) {
 								<Icon
 									size={13}
 									className="mt-0.5 flex-shrink-0"
-									style={{ color: "#E8620A" }}
+									style={{ color: "rgb(240, 192, 64)" }}
 								/>
 								<span
 									className="text-xs font-light"
@@ -1651,24 +1690,24 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 						style={{
 							background: "#FFFDF8",
 							border: "2px solid #EDD8B0",
-							borderTop: "5px solid #E8620A",
-							boxShadow: "0 40px 80px rgba(26,10,0,0.5), 8px 8px 0 #7A1F1F",
+							borderTop: "5px solid rgb(240, 192, 64)",
+							boxShadow: "0 40px 80px rgba(26,10,0,0.5), 8px 8px 0 #FFFFFF",
 						}}
 					>
 						<button
 							onClick={onClose}
 							className="absolute top-3 right-3 z-10 p-1.5 hover:text-zinc-500 transition-colors"
-							style={{ color: "#4A2C10" }}
+							style={{ color: "rgb(240, 192, 64)" }}
 						>
 							<X size={18} />
 						</button>
 						{/* Hero */}
 						<div
-							className={`relative flex items-center justify-center text-8xl aspect-[2/1] bg-gradient-to-br ${p.bg}`}
+							className={`relative aspect-[2/1] bg-gradient-to-br ${p.bg}`}
 							style={{ borderBottom: "3px solid #EDD8B0" }}
 						>
 							<div className="absolute inset-6 border border-dashed border-red-900/10 rounded-full pointer-events-none" />
-							<span className="relative z-10">{p.emoji}</span>
+							<ProductImage p={p} sizes="(max-width: 640px) 92vw, 520px" priority />
 						</div>
 						<div className="p-7">
 							{p.badge && (
@@ -1676,7 +1715,7 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 									className="inline-block mb-3 px-3 py-1 text-xs font-bold uppercase tracking-wider stamp-rotate"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										background: "#7A1F1F",
+										background: "#FFFFFF",
 										color: "#F7EDD8",
 										border: "1px solid #A83030",
 									}}
@@ -1686,22 +1725,22 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 							)}
 							<div
 								className="font-rozha text-3xl mb-0.5"
-								style={{ fontFamily: "'Rozha One', serif", color: "#7A1F1F" }}
+								style={{ fontFamily: "'Comic Sans', serif", color: "#FFFFFF" }}
 							>
 								{p.name[lang]}
 							</div>
 							<div
-								className="font-hindi italic text-sm mb-4"
+								className="font-hindi  text-sm mb-4"
 								style={{
 									fontFamily: "'Tiro Devanagari Hindi', serif",
-									color: "#7A5030",
+									color: "rgb(240, 192, 64)",
 								}}
 							>
 								{p.name[lang === "en" ? "hi" : "en"]}
 							</div>
 							<p
 								className="text-sm font-light leading-loose mb-5"
-								style={{ fontFamily: "'Mukta', sans-serif", color: "#4A2C10" }}
+								style={{ fontFamily: "'Mukta', sans-serif", color: "rgb(240, 192, 64)" }}
 							>
 								{p.fullDesc[lang]}
 							</p>
@@ -1714,14 +1753,14 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 										style={{
 											background: "#F7EDD8",
 											border: "1px solid #EDD8B0",
-											borderLeft: "3px solid #E8620A",
+											borderLeft: "3px solid rgb(240, 192, 64)",
 										}}
 									>
 										<div
 											className="text-xs uppercase tracking-wider font-bold mb-1"
 											style={{
 												fontFamily: "'Mukta', sans-serif",
-												color: "#7A5030",
+												color: "rgb(240, 192, 64)",
 												letterSpacing: "0.14em",
 											}}
 										>
@@ -1731,7 +1770,7 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 											className="text-sm font-bold"
 											style={{
 												fontFamily: "'Mukta', sans-serif",
-												color: "#7A1F1F",
+												color: "#FFFFFF",
 											}}
 										>
 											{d[lang][1]}
@@ -1746,7 +1785,10 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 							>
 								<div
 									className="font-rozha text-4xl"
-									style={{ fontFamily: "'Rozha One', serif", color: "#E8620A" }}
+									style={{
+										fontFamily: "'Comic Sans', serif",
+										color: "rgb(240, 192, 64)",
+									}}
 								>
 									₹{p.price}
 								</div>
@@ -1754,7 +1796,7 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 									className="text-xs text-right font-light max-w-[180px]"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "#7A5030",
+										color: "rgb(240, 192, 64)",
 									}}
 								>
 									{p.priceNote[lang]}
@@ -1770,8 +1812,8 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 									className="flex-1 py-3 text-sm font-bold uppercase tracking-wider text-white"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										background: "#E8620A",
-										borderBottom: "3px solid #7A1F1F",
+										background: "rgb(240, 192, 64)",
+										borderBottom: "3px solid #FFFFFF",
 									}}
 								>
 									{t.pmBuyNow}
@@ -1784,8 +1826,8 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 									className="flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-all hover:bg-red-900 hover:text-white"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "#7A1F1F",
-										border: "2px solid #7A1F1F",
+										color: "#FFFFFF",
+										border: "2px solid #FFFFFF",
 									}}
 								>
 									{t.pmCustom}
@@ -1853,7 +1895,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 		color: "#1A0A00",
 		background: "#F7EDD8",
 		border: "1.5px solid #EDD8B0",
-		borderLeft: "3px solid #E8620A",
+		borderLeft: "3px solid rgb(240, 192, 64)",
 		outline: "none",
 		padding: "10px 13px",
 		width: "100%",
@@ -1885,27 +1927,27 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 						style={{
 							background: "#FFFDF8",
 							border: "2px solid #EDD8B0",
-							borderTop: "5px solid #E8620A",
-							boxShadow: "0 40px 80px rgba(26,10,0,0.5), 8px 8px 0 #7A1F1F",
+							borderTop: "5px solid rgb(240, 192, 64)",
+							boxShadow: "0 40px 80px rgba(26,10,0,0.5), 8px 8px 0 #FFFFFF",
 						}}
 					>
 						<button
 							onClick={onClose}
 							className="absolute top-3 right-3 z-10 p-1.5 hover:text-zinc-500 transition-colors"
-							style={{ color: "#4A2C10" }}
+							style={{ color: "rgb(240, 192, 64)" }}
 						>
 							<X size={18} />
 						</button>
 						<div
 							className="p-6 pb-5"
 							style={{
-								background: "#7A1F1F",
-								borderBottom: "3px solid #E8620A",
+								background: "#FFFFFF",
+								borderBottom: "3px solid rgb(240, 192, 64)",
 							}}
 						>
 							<div
 								className="font-rozha text-2xl mb-1"
-								style={{ fontFamily: "'Rozha One', serif", color: "#F7EDD8" }}
+								style={{ fontFamily: "'Comic Sans', serif", color: "#F7EDD8" }}
 							>
 								{om.title}
 							</div>
@@ -1926,7 +1968,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "#7A5030",
+										color: "rgb(240, 192, 64)",
 										letterSpacing: "0.14em",
 									}}
 								>
@@ -1947,7 +1989,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "#7A5030",
+										color: "rgb(240, 192, 64)",
 										letterSpacing: "0.14em",
 									}}
 								>
@@ -1967,7 +2009,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "#7A5030",
+										color: "rgb(240, 192, 64)",
 										letterSpacing: "0.14em",
 									}}
 								>
@@ -1996,7 +2038,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "#7A5030",
+										color: "rgb(240, 192, 64)",
 										letterSpacing: "0.14em",
 									}}
 								>
@@ -2012,17 +2054,17 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 												fontFamily: "'Mukta', sans-serif",
 												border:
 													selectedId === p.id
-														? "1.5px solid #E8620A"
+														? "1.5px solid rgb(240, 192, 64)"
 														: "1.5px solid #EDD8B0",
 												borderLeft:
 													selectedId === p.id
-														? "3px solid #E8620A"
+														? "3px solid rgb(240, 192, 64)"
 														: "1.5px solid #EDD8B0",
 												background:
 													selectedId === p.id
 														? "rgba(232,98,10,0.08)"
 														: "#F7EDD8",
-												color: selectedId === p.id ? "#E8620A" : "#4A2C10",
+												color: selectedId === p.id ? "rgb(240, 192, 64)" : "rgb(240, 192, 64)",
 											}}
 										>
 											<span>{p.emoji}</span>
@@ -2054,7 +2096,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 											className={`flex justify-between text-xs py-1 ${i < 3 ? "border-b border-dashed border-amber-200" : "font-bold pt-2"}`}
 											style={{
 												fontFamily: "'Mukta', sans-serif",
-												color: i === 3 ? "#E8620A" : "#4A2C10",
+												color: i === 3 ? "rgb(240, 192, 64)" : "rgb(240, 192, 64)",
 											}}
 										>
 											<span>{k}</span>
@@ -2069,7 +2111,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "#7A5030",
+										color: "rgb(240, 192, 64)",
 										letterSpacing: "0.14em",
 									}}
 								>
@@ -2090,7 +2132,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "#7A5030",
+										color: "rgb(240, 192, 64)",
 										letterSpacing: "0.14em",
 									}}
 								>
@@ -2111,8 +2153,8 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 								className="w-full py-3.5 flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-white"
 								style={{
 									fontFamily: "'Mukta', sans-serif",
-									background: "#E8620A",
-									borderBottom: "3px solid #7A1F1F",
+									background: "rgb(240, 192, 64)",
+									borderBottom: "3px solid #FFFFFF",
 									letterSpacing: "0.12em",
 								}}
 							>
@@ -2151,15 +2193,11 @@ export default function woolcraft() {
 	}, [productModal, orderModal]);
 
 	return (
-		<div className="font-mukta" style={{ fontFamily: "'Mukta', sans-serif" }}>
+		<div className="font-mukta" style={{ fontFamily: "'Mukta', sans-serif", background: "#000000" }}>
 			<Head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
-				<link
-					rel="preconnect"
-					href="https://fonts.gstatic.com"
-					crossOrigin=""
-				/>
-				<link rel="stylesheet" href={GOOGLE_FONTS_HREF} />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+				<link href={GOOGLE_FONTS_HREF} rel="stylesheet" />
 				<style>{GLOBAL_CSS}</style>
 			</Head>
 			<Navbar lang={lang} setLang={setLang} t={t} onOrder={() => openOrder()} />

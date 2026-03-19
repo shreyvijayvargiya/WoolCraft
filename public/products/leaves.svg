@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#eafff7"/>
+      <stop offset="1" stop-color="#f0c040"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <g opacity="0.18">
+    <circle cx="560" cy="240" r="180" fill="#ffffff"/>
+    <circle cx="240" cy="520" r="220" fill="#ffffff"/>
+  </g>
+  <g fill="#0f7b6c">
+    <path d="M520 150c-110 50-190 160-190 280 160-20 260-110 290-250-26-18-66-22-100-30z"/>
+    <path d="M240 360c-120 40-200 150-190 290 170-10 280-92 310-242-38-18-70-36-120-48z" opacity="0.92"/>
+  </g>
+  <g stroke="#0b5d52" stroke-width="10" stroke-linecap="round">
+    <path d="M345 420c70-70 160-140 270-180" fill="none"/>
+    <path d="M160 610c90-80 170-150 300-210" fill="none"/>
+  </g>
+  <text x="40" y="760" font-family="Mukta, sans-serif" font-size="44" fill="rgba(26,10,0,0.55)">Leaves</text>
+</svg>
