@@ -37,7 +37,6 @@ import {
 	getSiteUrl,
 } from "../lib/woolcraft-data";
 
-
 const trustIcons = [Star, Leaf, Truck, Palette, Heart];
 const featureIcons = {
 	scissors: Scissors,
@@ -416,36 +415,36 @@ function Hero({ lang, t, onOrder }) {
 								href={`/product/${PRODUCTS[idx].slug}`}
 								className="block"
 							>
-							<motion.div
-								whileHover={{ y: -6, rotate: i % 2 === 0 ? -1 : 1 }}
-								className="cursor-pointer overflow-hidden"
-								style={{
-									background: "#F7EDD8",
-									border: "2px solid #EDD8B0",
-									boxShadow: "4px 4px 0 rgb(240, 192, 64)",
-									marginTop: i === 1 ? 20 : i === 2 ? -20 : 0,
-								}}
-							>
-								<div
-									className={`aspect-square relative bg-gradient-to-br ${PRODUCTS[idx].bg}`}
-								>
-									<ProductImage
-										p={PRODUCTS[idx]}
-										sizes="(max-width: 768px) 40vw, 180px"
-										priority={idx === 0}
-									/>
-								</div>
-								<div
-									className="px-3 py-2 text-xs font-bold uppercase tracking-wider"
+								<motion.div
+									whileHover={{ y: -6, rotate: i % 2 === 0 ? -1 : 1 }}
+									className="cursor-pointer overflow-hidden"
 									style={{
-										fontFamily: "'Mukta', sans-serif",
-										color: "rgb(240, 192, 64)",
-										borderTop: "1px solid #EDD8B0",
+										background: "#F7EDD8",
+										border: "2px solid #EDD8B0",
+										boxShadow: "4px 4px 0 rgb(240, 192, 64)",
+										marginTop: i === 1 ? 20 : i === 2 ? -20 : 0,
 									}}
 								>
-									{PRODUCTS[idx].name[lang]}
-								</div>
-							</motion.div>
+									<div
+										className={`aspect-square relative bg-gradient-to-br ${PRODUCTS[idx].bg}`}
+									>
+										<ProductImage
+											p={PRODUCTS[idx]}
+											sizes="(max-width: 768px) 40vw, 180px"
+											priority={idx === 0}
+										/>
+									</div>
+									<div
+										className="px-3 py-2 text-xs font-bold uppercase tracking-wider"
+										style={{
+											fontFamily: "'Mukta', sans-serif",
+											color: "rgb(240, 192, 64)",
+											borderTop: "1px solid #EDD8B0",
+										}}
+									>
+										{PRODUCTS[idx].name[lang]}
+									</div>
+								</motion.div>
 							</Link>
 						))}
 					</div>
@@ -551,86 +550,86 @@ function ProductCard({ product: p, lang, t }) {
 					borderBottom: "4px solid rgb(240, 192, 64)",
 				}}
 			>
-			{/* Rainbow top bar on hover */}
-			<div
-				className="absolute top-0 left-0 right-0 h-0.5 opacity-0 hover:opacity-100 transition-opacity"
-				style={{
-					background:
-						"linear-gradient(to right,#0F7B6C,rgb(240, 192, 64),#C4185C,#D4A017)",
-				}}
-			/>
-			<div className={`aspect-square relative bg-gradient-to-br ${p.bg}`}>
-				{/* Mandala ring */}
-				<div className="absolute inset-3 border border-dashed border-red-900/10 rounded-full pointer-events-none" />
-				<ProductImage
-					p={p}
-					sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 360px"
+				{/* Rainbow top bar on hover */}
+				<div
+					className="absolute top-0 left-0 right-0 h-0.5 opacity-0 hover:opacity-100 transition-opacity"
+					style={{
+						background:
+							"linear-gradient(to right,#0F7B6C,rgb(240, 192, 64),#C4185C,#D4A017)",
+					}}
 				/>
-				{p.badge && (
+				<div className={`aspect-square relative bg-gradient-to-br ${p.bg}`}>
+					{/* Mandala ring */}
+					<div className="absolute inset-3 border border-dashed border-red-900/10 rounded-full pointer-events-none" />
+					<ProductImage
+						p={p}
+						sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 360px"
+					/>
+					{p.badge && (
+						<div
+							className="absolute top-2.5 right-2.5 w-12 h-12 rounded-full flex items-center justify-center text-center stamp-rotate z-20"
+							style={{
+								background: "#FFFFFF",
+								color: "#F7EDD8",
+								fontSize: "0.52rem",
+								fontWeight: 700,
+								letterSpacing: "0.06em",
+								lineHeight: 1.3,
+								border: "2px solid #A83030",
+								fontFamily: "'Mukta', sans-serif",
+								whiteSpace: "pre-line",
+							}}
+						>
+							{lang === "en" ? p.badge.en : p.badge.hi}
+						</div>
+					)}
+				</div>
+				<div className="p-4">
 					<div
-						className="absolute top-2.5 right-2.5 w-12 h-12 rounded-full flex items-center justify-center text-center stamp-rotate z-20"
+						className="font-yatra text-lg mb-0.5"
+						style={{ fontFamily: "'Yatra One', cursive", color: "#FFFFFF" }}
+					>
+						{p.name[lang]}
+					</div>
+					<div
+						className="font-hindi  text-xs mb-2"
 						style={{
-							background: "#FFFFFF",
-							color: "#F7EDD8",
-							fontSize: "0.52rem",
-							fontWeight: 700,
-							letterSpacing: "0.06em",
-							lineHeight: 1.3,
-							border: "2px solid #A83030",
-							fontFamily: "'Mukta', sans-serif",
-							whiteSpace: "pre-line",
+							fontFamily: "'Tiro Devanagari Hindi', serif",
+							color: "rgb(240, 192, 64)",
 						}}
 					>
-						{lang === "en" ? p.badge.en : p.badge.hi}
+						{p.name[lang === "en" ? "hi" : "en"]}
 					</div>
-				)}
-			</div>
-			<div className="p-4">
-				<div
-					className="font-yatra text-lg mb-0.5"
-					style={{ fontFamily: "'Yatra One', cursive", color: "#FFFFFF" }}
-				>
-					{p.name[lang]}
-				</div>
-				<div
-					className="font-hindi  text-xs mb-2"
-					style={{
-						fontFamily: "'Tiro Devanagari Hindi', serif",
-						color: "rgb(240, 192, 64)",
-					}}
-				>
-					{p.name[lang === "en" ? "hi" : "en"]}
-				</div>
-				<p
-					className="text-xs font-light mb-3 leading-relaxed"
-					style={{
-						fontFamily: "'Mukta', sans-serif",
-						color: "rgb(240, 192, 64)",
-					}}
-				>
-					{p.desc[lang]}
-				</p>
-				<div className="flex items-center justify-between">
-					<div
-						className="font-bold text-zinc-600"
-						style={{ fontFamily: "'Mukta', sans-serif" }}
+					<p
+						className="text-xs font-light mb-3 leading-relaxed"
+						style={{
+							fontFamily: "'Mukta', sans-serif",
+							color: "rgb(240, 192, 64)",
+						}}
 					>
-						<span className="text-xs font-normal text-amber-800 mr-1">
-							{t.from}
+						{p.desc[lang]}
+					</p>
+					<div className="flex items-center justify-between">
+						<div
+							className="font-bold text-zinc-600"
+							style={{ fontFamily: "'Mukta', sans-serif" }}
+						>
+							<span className="text-xs font-normal text-amber-800 mr-1">
+								{t.from}
+							</span>
+							₹{p.price}
+						</div>
+						<span
+							className="text-xs font-bold uppercase tracking-wider text-teal-700 group-hover:text-zinc-500 transition-colors"
+							style={{
+								fontFamily: "'Mukta', sans-serif",
+								letterSpacing: "0.08em",
+							}}
+						>
+							{t.viewArrow}
 						</span>
-						₹{p.price}
 					</div>
-					<span
-						className="text-xs font-bold uppercase tracking-wider text-teal-700 group-hover:text-zinc-500 transition-colors"
-						style={{
-							fontFamily: "'Mukta', sans-serif",
-							letterSpacing: "0.08em",
-						}}
-					>
-						{t.viewArrow}
-					</span>
 				</div>
-			</div>
 			</motion.div>
 		</Link>
 	);
@@ -1239,7 +1238,7 @@ function Footer({ lang, t, onOrder }) {
 										: "जयपुर, राजस्थान 302001",
 							},
 							{ icon: Phone, text: "+91 9413732541" },
-							{ icon: Mail, text: "hello@woolcraft.in" },
+							{ icon: Mail, text: "hello@wool-craft.vercel.app" },
 							{
 								icon: Clock,
 								text:
@@ -1299,7 +1298,6 @@ function Footer({ lang, t, onOrder }) {
 	);
 }
 
-
 // ── ORDER MODAL ──
 function OrderModal({ lang, t, open, onClose, preselect }) {
 	const [name, setName] = useState("");
@@ -1350,10 +1348,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 		const msg = encodeURIComponent(
 			`🧶 *Namaskar! woolcraft Order*\n\n👤 Naam: ${name}\n📞 Customer WhatsApp: ${phoneClean}\n🛍 Product: ${selected.emoji} ${selected.name.en} (₹${selected.price})\n📍 Delivery:\n${addressBlock}\n📝 Farmaish: ${note || "—"}\n\nJai Hind! 🇮🇳`,
 		);
-		window.open(
-			`https://wa.me/${WHATSAPP_ORDER_NUMBER}?text=${msg}`,
-			"_blank",
-		);
+		window.open(`https://wa.me/${WHATSAPP_ORDER_NUMBER}?text=${msg}`, "_blank");
 		onClose();
 		toast.success(om.toastOrderTitle, {
 			description: om.toastOrderDesc,
@@ -1812,9 +1807,7 @@ export function WoolcraftProductPage({ product }) {
 	}, [product.id]);
 
 	useEffect(() => {
-		setCanNativeShare(
-			typeof navigator !== "undefined" && !!navigator.share,
-		);
+		setCanNativeShare(typeof navigator !== "undefined" && !!navigator.share);
 	}, []);
 
 	const openOrder = (preselect) => {
@@ -1861,10 +1854,7 @@ export function WoolcraftProductPage({ product }) {
 				<meta name="description" content={product.desc.en} />
 				<link rel="canonical" href={pageUrl} />
 				<meta property="og:type" content="website" />
-				<meta
-					property="og:title"
-					content={`${product.name.en} — woolcraft`}
-				/>
+				<meta property="og:title" content={`${product.name.en} — woolcraft`} />
 				<meta property="og:description" content={product.desc.en} />
 				<meta property="og:url" content={pageUrl} />
 				<meta property="og:image" content={ogImage} />
