@@ -307,7 +307,7 @@ const T = {
 const PRODUCTS = [
 	{
 		id: 0,
-		image: "/products/sunflower.svg",
+		image: "/products/sunflower.JPG",
 		emoji: "🌻",
 		badge: { en: "Best\nSeller", hi: "सबसे\nलोकप्रिय" },
 		name: { en: "Woolwork Sunflower", hi: "ऊनी सूरजमुखी" },
@@ -334,7 +334,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 1,
-		image: "/products/rose.svg",
+		image: "/products/rose.JPG",
 		emoji: "🌹",
 		badge: { en: "Popular", hi: "पसंदीदा" },
 		name: { en: "Velvet Rose", hi: "मखमली गुलाब" },
@@ -358,7 +358,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 2,
-		image: "/products/leaves.svg",
+		image: "/products/white-sunflower.JPG",
 		emoji: "🍃",
 		badge: null,
 		name: { en: "Nature Leaves", hi: "प्रकृति के पत्ते" },
@@ -382,7 +382,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 3,
-		image: "/products/petals.svg",
+		image: "/products/petals.JPG",
 		emoji: "🌸",
 		badge: null,
 		name: { en: "Petal Clusters", hi: "पंखुड़ी समूह" },
@@ -409,7 +409,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 4,
-		image: "/products/gift-box.svg",
+		image: "/products/gift-box.JPG",
 		emoji: "🎁",
 		badge: { en: "Naya\nनया", hi: "नया\nNew" },
 		name: { en: "Wool Gift Box", hi: "ऊनी उपहार बॉक्स" },
@@ -436,7 +436,7 @@ const PRODUCTS = [
 	},
 	{
 		id: 5,
-		image: "/products/petals.svg",
+		image: "/products/rose-sunflower.JPG",
 		emoji: "💐",
 		badge: null,
 		name: { en: "Bouquet Bundle", hi: "गुलदस्ता" },
@@ -935,7 +935,7 @@ function Products({ lang, t, onProduct }) {
 				</div>
 			</FadeInSection>
 			<MehndiDivider />
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 max-w-7xl mx-auto">
 				{PRODUCTS.map((p, i) => (
 					<FadeInSection key={p.id} delay={i * 0.08}>
 						<ProductCard
@@ -971,12 +971,13 @@ function ProductCard({ product: p, lang, t, onClick }) {
 						"linear-gradient(to right,#0F7B6C,rgb(240, 192, 64),#C4185C,#D4A017)",
 				}}
 			/>
-			<div
-				className={`aspect-square relative bg-gradient-to-br ${p.bg}`}
-			>
+			<div className={`aspect-square relative bg-gradient-to-br ${p.bg}`}>
 				{/* Mandala ring */}
 				<div className="absolute inset-3 border border-dashed border-red-900/10 rounded-full pointer-events-none" />
-				<ProductImage p={p} sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 360px" />
+				<ProductImage
+					p={p}
+					sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 360px"
+				/>
 				{p.badge && (
 					<div
 						className="absolute top-2.5 right-2.5 w-12 h-12 rounded-full flex items-center justify-center text-center stamp-rotate z-20"
@@ -1014,7 +1015,10 @@ function ProductCard({ product: p, lang, t, onClick }) {
 				</div>
 				<p
 					className="text-xs font-light mb-3 leading-relaxed"
-					style={{ fontFamily: "'Mukta', sans-serif", color: "rgb(240, 192, 64)" }}
+					style={{
+						fontFamily: "'Mukta', sans-serif",
+						color: "rgb(240, 192, 64)",
+					}}
 				>
 					{p.desc[lang]}
 				</p>
@@ -1068,7 +1072,28 @@ function Story({ lang, t }) {
 								className="absolute inset-2 border pointer-events-none"
 								style={{ borderColor: "#D4B878" }}
 							/>
-							🧶
+							<div className="flex gap-2 items-center flex-wrap">
+								<img
+									src="/products/sunflower.JPG"
+									alt="Story"
+									className="w-24 h-24 object-cover rounded-xl"
+								/>
+								<img
+									src="/products/rose.JPG"
+									alt="Story"
+									className="w-24 h-24 object-cover rounded-xl"
+								/>{" "}
+								<img
+									src="/products/petals.JPG"
+									alt="Story"
+									className="w-24 h-24 object-cover rounded-xl"
+								/>{" "}
+								<img
+									src="/products/gift-box.JPG"
+									alt="Story"
+									className="w-24 h-24 object-cover rounded-xl"
+								/>{" "}
+							</div>
 						</div>
 						<div
 							className="absolute -top-4 -right-5 px-3 py-2 text-xs font-bold uppercase tracking-wider z-10"
@@ -1237,7 +1262,10 @@ function Gallery({ lang, t, onProduct }) {
 			</div>
 			<div
 				className="text-center mt-4 text-xs font-bold uppercase tracking-widest"
-				style={{ fontFamily: "'Mukta', sans-serif", color: "rgb(240, 192, 64)" }}
+				style={{
+					fontFamily: "'Mukta', sans-serif",
+					color: "rgb(240, 192, 64)",
+				}}
 			>
 				←{" "}
 				{lang === "en"
@@ -1349,7 +1377,11 @@ function OrderCTA({ lang, t, onOrder }) {
 function FAQ({ t }) {
 	const [open, setOpen] = useState(null);
 	return (
-		<section id="faq" className="mx-auto justify-center max-w-4xl py-20 px-6" style={{ background: "transparent" }}>
+		<section
+			id="faq"
+			className="mx-auto justify-center max-w-4xl py-20 px-6"
+			style={{ background: "transparent" }}
+		>
 			<FadeInSection>
 				<SectionTag>{t.faqTag}</SectionTag>
 				<h2
@@ -1707,7 +1739,11 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 							style={{ borderBottom: "3px solid #EDD8B0" }}
 						>
 							<div className="absolute inset-6 border border-dashed border-red-900/10 rounded-full pointer-events-none" />
-							<ProductImage p={p} sizes="(max-width: 640px) 92vw, 520px" priority />
+							<ProductImage
+								p={p}
+								sizes="(max-width: 640px) 92vw, 520px"
+								priority
+							/>
 						</div>
 						<div className="p-7">
 							{p.badge && (
@@ -1740,7 +1776,10 @@ function ProductModal({ product: p, lang, t, open, onClose, onOrder }) {
 							</div>
 							<p
 								className="text-sm font-light leading-loose mb-5"
-								style={{ fontFamily: "'Mukta', sans-serif", color: "rgb(240, 192, 64)" }}
+								style={{
+									fontFamily: "'Mukta', sans-serif",
+									color: "rgb(240, 192, 64)",
+								}}
 							>
 								{p.fullDesc[lang]}
 							</p>
@@ -2064,7 +2103,10 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 													selectedId === p.id
 														? "rgba(232,98,10,0.08)"
 														: "#F7EDD8",
-												color: selectedId === p.id ? "rgb(240, 192, 64)" : "rgb(240, 192, 64)",
+												color:
+													selectedId === p.id
+														? "rgb(240, 192, 64)"
+														: "rgb(240, 192, 64)",
 											}}
 										>
 											<span>{p.emoji}</span>
@@ -2096,7 +2138,8 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 											className={`flex justify-between text-xs py-1 ${i < 3 ? "border-b border-dashed border-amber-200" : "font-bold pt-2"}`}
 											style={{
 												fontFamily: "'Mukta', sans-serif",
-												color: i === 3 ? "rgb(240, 192, 64)" : "rgb(240, 192, 64)",
+												color:
+													i === 3 ? "rgb(240, 192, 64)" : "rgb(240, 192, 64)",
 											}}
 										>
 											<span>{k}</span>
@@ -2193,10 +2236,17 @@ export default function woolcraft() {
 	}, [productModal, orderModal]);
 
 	return (
-		<div className="font-mukta" style={{ fontFamily: "'Mukta', sans-serif", background: "#000000" }}>
+		<div
+			className="font-mukta"
+			style={{ fontFamily: "'Mukta', sans-serif", background: "#000000" }}
+		>
 			<Head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
-				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+				<link
+					rel="preconnect"
+					href="https://fonts.gstatic.com"
+					crossOrigin=""
+				/>
 				<link href={GOOGLE_FONTS_HREF} rel="stylesheet" />
 				<style>{GLOBAL_CSS}</style>
 			</Head>
