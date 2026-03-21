@@ -23,9 +23,13 @@ import {
 	Instagram,
 	Facebook,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const GOOGLE_FONTS_HREF =
 	"https://fonts.googleapis.com/css2?family=Rozha+One&family=Yatra+One&family=Mukta:wght@300;400;600;700&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap";
+
+/** +91 9413732541 — E.164 digits only for wa.me */
+const WHATSAPP_ORDER_NUMBER = "919413732541";
 
 const GLOBAL_CSS = `
   * { box-sizing: border-box; }
@@ -173,7 +177,13 @@ const T = {
 			selectLbl: "Product Chuniye *",
 			selectPlaceholder: "-- Product chuniye --",
 			chipsLbl: "Ya seedhe chuniye:",
-			addressLbl: "Delivery Address",
+			addressLbl: "Delivery address",
+			addressLine1Lbl: "Street, flat / house no.",
+			addressLine2Lbl: "Area, landmark (optional)",
+			cityLbl: "City / town",
+			stateLbl: "State",
+			postalLbl: "PIN code",
+			countryLbl: "Country",
 			noteLbl: "Koi Khas Farmaish?",
 			notePlaceholder: "Rang, size, occasion…",
 			submit: "📱 WhatsApp pe bhejo →",
@@ -182,6 +192,9 @@ const T = {
 			delivery: "Delivery",
 			deliveryVal: "Confirm pe",
 			total: "Total (approx)",
+			toastOrderTitle: "Continue on WhatsApp",
+			toastOrderDesc:
+				"Send the prefilled message in the tab that opened — we'll reply there to confirm your order.",
 		},
 		pmBuyNow: "Kharido →",
 		pmCustom: "Custom Order",
@@ -248,7 +261,7 @@ const T = {
 		orderSub:
 			"ऑर्डर करें और हम WhatsApp पर पुष्टि करेंगे — आपकी पसंद, आकार और डिलीवरी, सब व्यक्तिगत रूप से।",
 		orderCta: "WhatsApp पर ऑर्डर करें",
-		orderNote: "📞 +91 98765 00000 · Mon–Sat · सोम–शनि 10am–7pm",
+		orderNote: "📞 +91 9413732541 · Mon–Sat · सोम–शनि 10am–7pm",
 		faqTag: "FAQ · सवाल-जवाब",
 		faqTitle: "अक्सर पूछे जाने वाले सवाल",
 		faqHindi: "Common questions with answers",
@@ -288,6 +301,12 @@ const T = {
 			selectPlaceholder: "-- उत्पाद चुनें --",
 			chipsLbl: "या सीधे चुनें:",
 			addressLbl: "डिलीवरी पता",
+			addressLine1Lbl: "गली, मकान / फ्लैट नंबर",
+			addressLine2Lbl: "इलाका, निशान (वैकल्पिक)",
+			cityLbl: "शहर",
+			stateLbl: "राज्य",
+			postalLbl: "पिन कोड",
+			countryLbl: "देश",
 			noteLbl: "कोई खास फरमाइश?",
 			notePlaceholder: "रंग, आकार, अवसर…",
 			submit: "📱 WhatsApp पर भेजें →",
@@ -296,6 +315,9 @@ const T = {
 			delivery: "शिपिंग",
 			deliveryVal: "पुष्टि पर",
 			total: "अनुमानित कुल",
+			toastOrderTitle: "WhatsApp पर बात जारी रखें",
+			toastOrderDesc:
+				"खुले टैब में तैयार संदेश भेज दें — हम वहीं जवाब देकर ऑर्डर कन्फर्म करेंगे।",
 		},
 		pmBuyNow: "खरीदो →",
 		pmCustom: "कस्टम ऑर्डर",
@@ -1244,7 +1266,7 @@ function Gallery({ lang, t, onProduct }) {
 					{t.gallerySub}
 				</p>
 			</FadeInSection>
-			<div className="gallery-scroll flex gap-3 pb-2 max-w-7xl">
+			<div className="gallery-scroll flex gap-3 pb-2 max-w-7xl mx-auto">
 				{galleryItems.map((idx, i) => (
 					<motion.div
 						key={i}
@@ -1885,7 +1907,12 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [selectedId, setSelectedId] = useState(preselect ?? -1);
-	const [address, setAddress] = useState("");
+	const [addressLine1, setAddressLine1] = useState("");
+	const [addressLine2, setAddressLine2] = useState("");
+	const [city, setCity] = useState("");
+	const [addressRegion, setAddressRegion] = useState("");
+	const [postalCode, setPostalCode] = useState("");
+	const [country, setCountry] = useState("");
 	const [note, setNote] = useState("");
 	const om = t.orderModal;
 
@@ -1896,7 +1923,8 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 	const selected = PRODUCTS.find((p) => p.id === selectedId);
 
 	const submit = () => {
-		if (!name || !phone) {
+		const phoneClean = phone.replace(/\s/g, "").trim();
+		if (!name || !phoneClean) {
 			alert(
 				lang === "en"
 					? "Please fill in your name and phone."
@@ -1912,20 +1940,27 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 			);
 			return;
 		}
+		const deliveryLines = [
+			addressLine1.trim(),
+			addressLine2.trim(),
+			[city.trim(), addressRegion.trim(), postalCode.trim()]
+				.filter(Boolean)
+				.join(", "),
+			country.trim(),
+		].filter(Boolean);
+		const addressBlock = deliveryLines.length ? deliveryLines.join("\n") : "—";
 		const msg = encodeURIComponent(
-			`🧶 *Namaskar! woolcraft Order*\n\n👤 Naam: ${name}\n📞 Phone: ${phone}\n🛍 Product: ${selected.emoji} ${selected.name.en} (₹${selected.price})\n📍 Pata: ${address || "—"}\n📝 Farmaish: ${note || "—"}\n\nJai Hind! 🇮🇳`,
+			`🧶 *Namaskar! woolcraft Order*\n\n👤 Naam: ${name}\n📞 Customer WhatsApp: ${phoneClean}\n🛍 Product: ${selected.emoji} ${selected.name.en} (₹${selected.price})\n📍 Delivery:\n${addressBlock}\n📝 Farmaish: ${note || "—"}\n\nJai Hind! 🇮🇳`,
 		);
-		window.open(`https://wa.me/919876500000?text=${msg}`, "_blank");
+		window.open(
+			`https://wa.me/${WHATSAPP_ORDER_NUMBER}?text=${msg}`,
+			"_blank",
+		);
 		onClose();
-		setTimeout(
-			() =>
-				alert(
-					lang === "en"
-						? `Shukriya ${name} ji! 🙏🎉 We'll WhatsApp you shortly.`
-						: `Shukriya ${name} ji! 🙏🎉 Hum jaldi WhatsApp karenge.`,
-				),
-			300,
-		);
+		toast.success(om.toastOrderTitle, {
+			description: om.toastOrderDesc,
+			duration: 6500,
+		});
 	};
 
 	const inputStyle = {
@@ -2000,10 +2035,18 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 								{om.sub}
 							</div>
 						</div>
-						<div className="p-6 space-y-4">
+						<form
+							className="p-6 space-y-4"
+							autoComplete="on"
+							onSubmit={(e) => {
+								e.preventDefault();
+								submit();
+							}}
+						>
 							{/* Name */}
 							<div>
 								<label
+									htmlFor="woolcraft-order-name"
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
@@ -2014,6 +2057,9 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									{om.nameLbl}
 								</label>
 								<input
+									id="woolcraft-order-name"
+									name="name"
+									autoComplete="name"
 									style={inputStyle}
 									value={name}
 									onChange={(e) => setName(e.target.value)}
@@ -2025,6 +2071,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 							{/* Phone */}
 							<div>
 								<label
+									htmlFor="woolcraft-order-tel"
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
@@ -2035,16 +2082,21 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									{om.phoneLbl}
 								</label>
 								<input
+									id="woolcraft-order-tel"
+									name="phone"
+									autoComplete="tel"
 									style={inputStyle}
 									value={phone}
 									onChange={(e) => setPhone(e.target.value)}
 									placeholder="+91 XXXXX XXXXX"
 									type="tel"
+									inputMode="tel"
 								/>
 							</div>
 							{/* Select */}
 							<div>
 								<label
+									htmlFor="woolcraft-order-product"
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
@@ -2055,6 +2107,9 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									{om.selectLbl}
 								</label>
 								<select
+									id="woolcraft-order-product"
+									name="order-product"
+									autoComplete="off"
 									style={selectStyle}
 									value={selectedId === -1 ? "" : String(selectedId)}
 									onChange={(e) =>
@@ -2087,6 +2142,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									{PRODUCTS.map((p) => (
 										<button
 											key={p.id}
+											type="button"
 											onClick={() => setSelectedId(p.id)}
 											className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold transition-all"
 											style={{
@@ -2148,10 +2204,10 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									))}
 								</motion.div>
 							)}
-							{/* Address */}
-							<div>
-								<label
-									className="block text-xs font-bold uppercase tracking-wider mb-2"
+							{/* Delivery — shipping* tokens help browser autofill */}
+							<fieldset className="space-y-3 border-0 p-0 m-0 min-w-0">
+								<legend
+									className="block text-xs font-bold uppercase tracking-wider mb-2 w-full"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
 										color: "rgb(240, 192, 64)",
@@ -2159,19 +2215,144 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									}}
 								>
 									{om.addressLbl}
-								</label>
-								<input
-									style={inputStyle}
-									value={address}
-									onChange={(e) => setAddress(e.target.value)}
-									placeholder={
-										lang === "en" ? "Sheher, Rajya, PIN" : "शहर, राज्य, PIN"
-									}
-								/>
-							</div>
+								</legend>
+								<div className="space-y-3">
+									<div>
+										<label
+											htmlFor="woolcraft-shipping-line1"
+											className="block text-[0.65rem] font-bold uppercase tracking-wider mb-1.5 opacity-90"
+											style={{
+												fontFamily: "'Mukta', sans-serif",
+												color: "rgb(240, 192, 64)",
+												letterSpacing: "0.1em",
+											}}
+										>
+											{om.addressLine1Lbl}
+										</label>
+										<input
+											id="woolcraft-shipping-line1"
+											name="shipping-address-line1"
+											autoComplete="shipping address-line1"
+											style={inputStyle}
+											value={addressLine1}
+											onChange={(e) => setAddressLine1(e.target.value)}
+										/>
+									</div>
+									<div>
+										<label
+											htmlFor="woolcraft-shipping-line2"
+											className="block text-[0.65rem] font-bold uppercase tracking-wider mb-1.5 opacity-90"
+											style={{
+												fontFamily: "'Mukta', sans-serif",
+												color: "rgb(240, 192, 64)",
+												letterSpacing: "0.1em",
+											}}
+										>
+											{om.addressLine2Lbl}
+										</label>
+										<input
+											id="woolcraft-shipping-line2"
+											name="shipping-address-line2"
+											autoComplete="shipping address-line2"
+											style={inputStyle}
+											value={addressLine2}
+											onChange={(e) => setAddressLine2(e.target.value)}
+										/>
+									</div>
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+										<div>
+											<label
+												htmlFor="woolcraft-shipping-city"
+												className="block text-[0.65rem] font-bold uppercase tracking-wider mb-1.5 opacity-90"
+												style={{
+													fontFamily: "'Mukta', sans-serif",
+													color: "rgb(240, 192, 64)",
+													letterSpacing: "0.1em",
+												}}
+											>
+												{om.cityLbl}
+											</label>
+											<input
+												id="woolcraft-shipping-city"
+												name="shipping-address-level2"
+												autoComplete="shipping address-level2"
+												style={inputStyle}
+												value={city}
+												onChange={(e) => setCity(e.target.value)}
+											/>
+										</div>
+										<div>
+											<label
+												htmlFor="woolcraft-shipping-state"
+												className="block text-[0.65rem] font-bold uppercase tracking-wider mb-1.5 opacity-90"
+												style={{
+													fontFamily: "'Mukta', sans-serif",
+													color: "rgb(240, 192, 64)",
+													letterSpacing: "0.1em",
+												}}
+											>
+												{om.stateLbl}
+											</label>
+											<input
+												id="woolcraft-shipping-state"
+												name="shipping-address-level1"
+												autoComplete="shipping address-level1"
+												style={inputStyle}
+												value={addressRegion}
+												onChange={(e) => setAddressRegion(e.target.value)}
+											/>
+										</div>
+										<div>
+											<label
+												htmlFor="woolcraft-shipping-postal"
+												className="block text-[0.65rem] font-bold uppercase tracking-wider mb-1.5 opacity-90"
+												style={{
+													fontFamily: "'Mukta', sans-serif",
+													color: "rgb(240, 192, 64)",
+													letterSpacing: "0.1em",
+												}}
+											>
+												{om.postalLbl}
+											</label>
+											<input
+												id="woolcraft-shipping-postal"
+												name="shipping-postal-code"
+												autoComplete="shipping postal-code"
+												style={inputStyle}
+												value={postalCode}
+												onChange={(e) => setPostalCode(e.target.value)}
+												inputMode="numeric"
+												maxLength={12}
+											/>
+										</div>
+										<div>
+											<label
+												htmlFor="woolcraft-shipping-country"
+												className="block text-[0.65rem] font-bold uppercase tracking-wider mb-1.5 opacity-90"
+												style={{
+													fontFamily: "'Mukta', sans-serif",
+													color: "rgb(240, 192, 64)",
+													letterSpacing: "0.1em",
+												}}
+											>
+												{om.countryLbl}
+											</label>
+											<input
+												id="woolcraft-shipping-country"
+												name="shipping-country"
+												autoComplete="shipping country"
+												style={inputStyle}
+												value={country}
+												onChange={(e) => setCountry(e.target.value)}
+											/>
+										</div>
+									</div>
+								</div>
+							</fieldset>
 							{/* Note */}
 							<div>
 								<label
+									htmlFor="woolcraft-order-note"
 									className="block text-xs font-bold uppercase tracking-wider mb-2"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
@@ -2182,6 +2363,9 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									{om.noteLbl}
 								</label>
 								<input
+									id="woolcraft-order-note"
+									name="order-notes"
+									autoComplete="off"
 									style={{ ...inputStyle, borderLeft: "3px solid #D4A017" }}
 									value={note}
 									onChange={(e) => setNote(e.target.value)}
@@ -2190,9 +2374,9 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 							</div>
 							{/* Submit */}
 							<motion.button
+								type="submit"
 								whileHover={{ y: -1 }}
 								whileTap={{ scale: 0.97 }}
-								onClick={submit}
 								className="w-full py-3.5 flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-white"
 								style={{
 									fontFamily: "'Mukta', sans-serif",
@@ -2203,7 +2387,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 							>
 								{om.submit}
 							</motion.button>
-						</div>
+						</form>
 					</motion.div>
 				</motion.div>
 			)}
