@@ -17,7 +17,6 @@ import {
 	Palette,
 	MessageCircle,
 	Menu,
-	Globe,
 	Sparkles,
 	Share2,
 	Copy,
@@ -39,9 +38,10 @@ import {
 	T,
 	PRODUCTS,
 	getSiteUrl,
-	SUPPORTED_LANGS,
-	LANG_LABELS,
 } from "../lib/woolcraft-data";
+import { WoolcraftLanguageMenu } from "./woolcraft-language-menu";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 function pickLocalized(obj, lang) {
 	if (!obj || typeof obj !== "object") return "";
@@ -196,49 +196,26 @@ function Navbar({ lang, setLang, t, onOrder }) {
 					{t.langbar}
 				</span>
 				<div className="flex items-center gap-2 flex-shrink-0">
-					<button
+					<Button
 						type="button"
+						variant="outline"
+						size="icon-sm"
 						onClick={toggleTheme}
-						className="p-1.5 rounded border transition-all"
-						style={{
-							border:
-								theme === "light"
-									? "1px solid rgba(28,25,23,0.15)"
-									: "1px solid rgba(247,237,216,0.2)",
-							color: theme === "light" ? "#1c1917" : "#F7EDD8",
-							background:
-								theme === "light"
-									? "rgba(255,255,255,0.85)"
-									: "rgba(255,255,255,0.06)",
-						}}
+						className={cn(
+							"rounded border shadow-none",
+							theme === "light"
+								? "border-stone-300/80 bg-white/90 text-stone-900 hover:bg-white"
+								: "border-[rgba(247,237,216,0.22)] bg-white/[0.06] text-[#F7EDD8] hover:bg-white/10",
+						)}
 						aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
 					>
 						{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-					</button>
-					<select
-						value={lang}
-						onChange={(e) => setLang(e.target.value)}
-						className="text-xs font-bold px-2 py-1 rounded-sm border max-w-[140px]"
-						style={{
-							fontFamily: "'Mukta', sans-serif",
-							letterSpacing: "0.06em",
-							border:
-								theme === "light"
-									? "1px solid rgba(28,25,23,0.2)"
-									: "1px solid rgba(247,237,216,0.25)",
-							background:
-								theme === "light"
-									? "rgba(255,255,255,0.9)"
-									: "rgba(0,0,0,0.25)",
-							color: theme === "light" ? "#1c1917" : "#F7EDD8",
-						}}
-					>
-						{SUPPORTED_LANGS.map((l) => (
-							<option key={l} value={l}>
-								{LANG_LABELS[l] ?? l}
-							</option>
-						))}
-					</select>
+					</Button>
+					<WoolcraftLanguageMenu
+						lang={lang}
+						setLang={setLang}
+						theme={theme}
+					/>
 				</div>
 			</div>
 			{/* Main nav */}
