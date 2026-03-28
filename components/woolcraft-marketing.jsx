@@ -24,7 +24,11 @@ import {
 	Heart,
 	Instagram,
 	Facebook,
+	Sun,
+	Moon,
 } from "lucide-react";
+import { useWoolcraftTheme } from "../contexts/WoolcraftThemeContext";
+import { marketingSkin } from "../lib/woolcraft-marketing-skin";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
@@ -35,7 +39,30 @@ import {
 	T,
 	PRODUCTS,
 	getSiteUrl,
+	SUPPORTED_LANGS,
+	LANG_LABELS,
 } from "../lib/woolcraft-data";
+
+function pickLocalized(obj, lang) {
+	if (!obj || typeof obj !== "object") return "";
+	return obj[lang] ?? obj.en ?? obj.hi ?? "";
+}
+
+function pickProductName(name, lang) {
+	return pickLocalized(name, lang);
+}
+
+function pickProductSubtitle(name, lang) {
+	if (!name || typeof name !== "object") return "";
+	if (lang === "en") return name.hi ?? name.en ?? "";
+	if (lang === "hi") return name.en ?? name.hi ?? "";
+	return name.en ?? name.hi ?? "";
+}
+
+function pickDetailPair(d, lang) {
+	const arr = d?.[lang] ?? d?.en ?? d?.hi;
+	return Array.isArray(arr) ? arr : ["", ""];
+}
 
 const trustIcons = [Star, Leaf, Truck, Palette, Heart];
 const featureIcons = {
@@ -68,15 +95,18 @@ function RangoliBorder({ teal = false }) {
 }
 
 function SectionTag({ children }) {
+	const { theme } = useWoolcraftTheme();
+	const muted = theme === "light" ? "#57534e" : "rgba(247,237,216,0.55)";
 	return (
 		<div
-			className="flex items-center gap-2 text-zinc-600 mb-2"
+			className="flex items-center gap-2 mb-2"
 			style={{
 				fontFamily: "'Tiro Devanagari Hindi', serif",
 				fontSize: "0.9rem",
+				color: muted,
 			}}
 		>
-			<span className="text-zinc-500">❋</span>
+			<span style={{ color: muted, opacity: 0.85 }}>❋</span>
 			{children}
 		</div>
 	);
@@ -113,7 +143,7 @@ function ProductImage({ p, sizes, priority = false }) {
 	return (
 		<Image
 			src={p.image}
-			alt={`${p.name?.en ?? "Product"} — woolcraft`}
+			alt={`${pickProductName(p.name, "en") || "Product"} — woolcraft`}
 			fill
 			sizes={sizes}
 			priority={priority}
@@ -124,6 +154,8 @@ function ProductImage({ p, sizes, priority = false }) {
 
 // ── NAVBAR ──
 function Navbar({ lang, setLang, t, onOrder }) {
+	const { theme, toggleTheme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
 	const router = useRouter();
 	const isHome = router.pathname === "/";
 	const [scrolled, setScrolled] = useState(false);
@@ -150,44 +182,72 @@ function Navbar({ lang, setLang, t, onOrder }) {
 	return (
 		<>
 			{/* Lang bar */}
-			<div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-1.5 bg-zinc-900 border-b border-zinc-800">
+			<div
+				className="fixed top-0 left-0 right-0 z-50 flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-1.5 border-b border-zinc-800"
+				style={{ background: skin.navLangBar }}
+			>
 				<span
-					className="text-xs font-hindi"
+					className="text-xs font-hindi min-w-0 flex-1"
 					style={{
-						color: "#F0C040",
+						color: skin.heroHindi,
 						fontFamily: "'Tiro Devanagari Hindi', serif",
 					}}
 				>
 					{t.langbar}
 				</span>
-				<div className="flex gap-2">
-					{["en", "hi"].map((l) => (
-						<button
-							key={l}
-							onClick={() => setLang(l)}
-							className="text-xs font-bold px-3 py-0.5 border rounded-sm transition-all"
-							style={{
-								fontFamily: "'Mukta', sans-serif",
-								letterSpacing: "0.1em",
-								border:
-									lang === l
-										? "1px solid #D4A017"
-										: "1px solid rgba(247,237,216,0.25)",
-								background: lang === l ? "#D4A017" : "transparent",
-								color: lang === l ? "#1A0A00" : "rgba(247,237,216,0.6)",
-							}}
-						>
-							{l === "en" ? "EN" : "हिन्दी"}
-						</button>
-					))}
+				<div className="flex items-center gap-2 flex-shrink-0">
+					<button
+						type="button"
+						onClick={toggleTheme}
+						className="p-1.5 rounded border transition-all"
+						style={{
+							border:
+								theme === "light"
+									? "1px solid rgba(28,25,23,0.15)"
+									: "1px solid rgba(247,237,216,0.2)",
+							color: theme === "light" ? "#1c1917" : "#F7EDD8",
+							background:
+								theme === "light"
+									? "rgba(255,255,255,0.85)"
+									: "rgba(255,255,255,0.06)",
+						}}
+						aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
+					>
+						{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+					</button>
+					<select
+						value={lang}
+						onChange={(e) => setLang(e.target.value)}
+						className="text-xs font-bold px-2 py-1 rounded-sm border max-w-[140px]"
+						style={{
+							fontFamily: "'Mukta', sans-serif",
+							letterSpacing: "0.06em",
+							border:
+								theme === "light"
+									? "1px solid rgba(28,25,23,0.2)"
+									: "1px solid rgba(247,237,216,0.25)",
+							background:
+								theme === "light"
+									? "rgba(255,255,255,0.9)"
+									: "rgba(0,0,0,0.25)",
+							color: theme === "light" ? "#1c1917" : "#F7EDD8",
+						}}
+					>
+						{SUPPORTED_LANGS.map((l) => (
+							<option key={l} value={l}>
+								{LANG_LABELS[l] ?? l}
+							</option>
+						))}
+					</select>
 				</div>
 			</div>
 			{/* Main nav */}
 			<nav
-				className={`fixed left-0 right-0 bg-zinc-900 border-b border-zinc-800 z-40 flex items-stretch justify-between px-6 transition-shadow ${scrolled ? "shadow-lg" : ""}`}
+				className={`fixed left-0 right-0 border-b border-zinc-800 z-40 flex items-stretch justify-between px-6 transition-shadow ${scrolled ? "shadow-lg" : ""}`}
 				style={{
 					top: "30px",
 					borderBottom: "3px solid #27272a",
+					background: skin.navMain,
 				}}
 			>
 				<button
@@ -277,8 +337,8 @@ function Navbar({ lang, setLang, t, onOrder }) {
 								className="px-6 py-3 text-left text-sm font-bold border-b"
 								style={{
 									fontFamily: "'Mukta', sans-serif",
-									color: "rgba(247,237,216,0.8)",
-									borderColor: "rgba(247,237,216,0.1)",
+									color: "#292524",
+									borderColor: "rgba(0,0,0,0.08)",
 								}}
 							>
 								{label}
@@ -304,11 +364,13 @@ function Navbar({ lang, setLang, t, onOrder }) {
 
 // ── HERO ──
 function Hero({ lang, t, onOrder }) {
+	const { theme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
 	return (
 		<section
 			id="hero"
 			className="min-h-screen flex items-center relative overflow-hidden paisley-bg"
-			style={{ background: "#000000", paddingTop: "90px" }}
+			style={{ background: skin.pageBg, paddingTop: "90px" }}
 		>
 			<div className="absolute inset-0 pointer-events-none" />
 			<div className="w-full max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center py-16">
@@ -327,7 +389,7 @@ function Hero({ lang, t, onOrder }) {
 							className="font-hindi text-sm "
 							style={{
 								fontFamily: "'Tiro Devanagari Hindi', serif",
-								color: "#F0C040",
+								color: skin.heroTag,
 								letterSpacing: "0.04em",
 							}}
 						>
@@ -340,7 +402,7 @@ function Hero({ lang, t, onOrder }) {
 						style={{
 							fontFamily: "'Comic Sans', serif",
 							fontSize: "clamp(2.8rem,5vw,5rem)",
-							color: "#F7EDD8",
+							color: skin.heroTitle,
 							letterSpacing: "0.02em",
 						}}
 					>
@@ -352,7 +414,7 @@ function Hero({ lang, t, onOrder }) {
 						style={{
 							fontFamily: "'Tiro Devanagari Hindi', serif",
 							fontSize: "clamp(1.2rem,2.5vw,1.8rem)",
-							color: "#F0C040",
+							color: skin.heroHindi,
 						}}
 					>
 						{t.heroHindi}
@@ -363,7 +425,7 @@ function Hero({ lang, t, onOrder }) {
 						style={{
 							fontFamily: "'Mukta', sans-serif",
 							fontSize: "0.92rem",
-							color: "rgba(247,237,216,0.72)",
+							color: skin.heroSub,
 							letterSpacing: "0.02em",
 						}}
 					>
@@ -387,12 +449,13 @@ function Hero({ lang, t, onOrder }) {
 							{t.heroCta1}
 						</button>
 						<button
+							type="button"
 							onClick={onOrder}
 							className="px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all"
 							style={{
 								fontFamily: "'Mukta', sans-serif",
-								color: "#F7EDD8",
-								border: "2px solid rgba(247,237,216,0.4)",
+								color: skin.heroTitle,
+								border: `2px solid ${theme === "light" ? "rgba(28,25,23,0.2)" : "rgba(247,237,216,0.4)"}`,
 								letterSpacing: "0.1em",
 							}}
 						>
@@ -442,7 +505,7 @@ function Hero({ lang, t, onOrder }) {
 											borderTop: "1px solid #EDD8B0",
 										}}
 									>
-										{PRODUCTS[idx].name[lang]}
+										{pickProductName(PRODUCTS[idx].name, lang)}
 									</div>
 								</motion.div>
 							</Link>
@@ -489,18 +552,23 @@ function SareeStrip({ lang, t }) {
 
 // ── PRODUCTS ──
 function Products({ lang, t }) {
+	const { theme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
 	return (
 		<section
 			id="products"
 			className="py-20 px-6"
-			style={{ background: "#000000" }}
+			style={{ background: skin.sectionBg }}
 		>
 			<FadeInSection>
 				<div className="text-center mb-2">
 					<SectionTag>{t.prodTag}</SectionTag>
 					<h2
 						className="font-rozha text-4xl mb-1"
-						style={{ fontFamily: "'Comic Sans', serif", color: "#FFFFFF" }}
+						style={{
+							fontFamily: "'Comic Sans', serif",
+							color: skin.headingOnDark,
+						}}
 					>
 						{t.prodTitle}
 					</h2>
@@ -508,7 +576,7 @@ function Products({ lang, t }) {
 						className="font-hindi  text-lg mb-3"
 						style={{
 							fontFamily: "'Tiro Devanagari Hindi', serif",
-							color: "rgb(240, 192, 64)",
+							color: skin.headingGold,
 						}}
 					>
 						{t.prodHindi}
@@ -518,7 +586,7 @@ function Products({ lang, t }) {
 						style={{
 							fontFamily: "'Mukta', sans-serif",
 							fontSize: "0.88rem",
-							color: "rgb(240, 192, 64)",
+							color: skin.headingGold,
 							lineHeight: 1.85,
 						}}
 					>
@@ -580,7 +648,7 @@ function ProductCard({ product: p, lang, t }) {
 								whiteSpace: "pre-line",
 							}}
 						>
-							{lang === "en" ? p.badge.en : p.badge.hi}
+							{pickLocalized(p.badge, lang)}
 						</div>
 					)}
 				</div>
@@ -589,7 +657,7 @@ function ProductCard({ product: p, lang, t }) {
 						className="font-yatra text-lg mb-0.5"
 						style={{ fontFamily: "'Yatra One', cursive", color: "#FFFFFF" }}
 					>
-						{p.name[lang]}
+						{pickProductName(p.name, lang)}
 					</div>
 					<div
 						className="font-hindi  text-xs mb-2"
@@ -598,7 +666,7 @@ function ProductCard({ product: p, lang, t }) {
 							color: "rgb(240, 192, 64)",
 						}}
 					>
-						{p.name[lang === "en" ? "hi" : "en"]}
+						{pickProductSubtitle(p.name, lang)}
 					</div>
 					<p
 						className="text-xs font-light mb-3 leading-relaxed"
@@ -607,7 +675,7 @@ function ProductCard({ product: p, lang, t }) {
 							color: "rgb(240, 192, 64)",
 						}}
 					>
-						{p.desc[lang]}
+						{pickLocalized(p.desc, lang)}
 					</p>
 					<div className="flex items-center justify-between">
 						<div
@@ -637,11 +705,13 @@ function ProductCard({ product: p, lang, t }) {
 
 // ── STORY ──
 function Story({ lang, t }) {
+	const { theme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
 	return (
 		<section
 			id="story"
 			className="py-20 px-6 relative overflow-hidden paisley-bg"
-			style={{ background: "#000000" }}
+			style={{ background: skin.sectionBg }}
 		>
 			<div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 				<FadeInSection>
@@ -712,11 +782,14 @@ function Story({ lang, t }) {
 				<div>
 					<FadeInSection>
 						<SectionTag>
-							<span style={{ color: "#ffffff" }}>{t.storyTag}</span>
+							<span style={{ color: skin.faqHeading }}>{t.storyTag}</span>
 						</SectionTag>
 						<h2
 							className="font-rozha text-4xl mb-1"
-							style={{ fontFamily: "'Comic Sans', serif", color: "#F7EDD8" }}
+							style={{
+								fontFamily: "'Comic Sans', serif",
+								color: skin.heroTitle,
+							}}
 						>
 							{t.storyTitle}
 						</h2>
@@ -724,7 +797,7 @@ function Story({ lang, t }) {
 							className="font-hindi  text-xl mb-4"
 							style={{
 								fontFamily: "'Tiro Devanagari Hindi', serif",
-								color: "#F0C040",
+								color: skin.heroHindi,
 							}}
 						>
 							{t.storyHindi}
@@ -734,7 +807,7 @@ function Story({ lang, t }) {
 							style={{
 								fontFamily: "'Mukta', sans-serif",
 								fontSize: "0.88rem",
-								color: "rgba(247,237,216,0.68)",
+								color: skin.bodyMuted,
 							}}
 						>
 							{t.storySub}
@@ -758,18 +831,24 @@ function Story({ lang, t }) {
 									<div
 										className="w-10 h-10 flex-shrink-0 flex items-center justify-center"
 										style={{
-											background: "rgba(247,237,216,0.1)",
-											border: "1.5px solid rgba(247,237,216,0.2)",
+											background:
+												theme === "light"
+													? "rgba(28,25,23,0.06)"
+													: "rgba(247,237,216,0.1)",
+											border:
+												theme === "light"
+													? "1.5px solid rgba(28,25,23,0.12)"
+													: "1.5px solid rgba(247,237,216,0.2)",
 										}}
 									>
-										<Icon size={18} color="#F0C040" />
+										<Icon size={18} color={skin.heroHindi} />
 									</div>
 									<div>
 										<h4
 											className="font-yatra text-sm mb-0.5"
 											style={{
 												fontFamily: "'Yatra One', cursive",
-												color: "#F7EDD8",
+												color: skin.heroTitle,
 											}}
 										>
 											{f.title}
@@ -778,7 +857,7 @@ function Story({ lang, t }) {
 											className="text-xs font-light leading-relaxed"
 											style={{
 												fontFamily: "'Mukta', sans-serif",
-												color: "rgba(247,237,216,0.58)",
+												color: skin.bodyMuted,
 											}}
 										>
 											{f.desc}
@@ -796,18 +875,23 @@ function Story({ lang, t }) {
 
 // ── GALLERY ──
 function Gallery({ lang, t }) {
+	const { theme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
 	const galleryItems = [0, 1, 2, 4, 3, 5, 2];
 	return (
 		<section
 			id="gallery"
 			className="py-20 px-6"
-			style={{ background: "#000000" }}
+			style={{ background: skin.sectionBg }}
 		>
 			<FadeInSection>
 				<SectionTag>{t.galleryTag}</SectionTag>
 				<h2
 					className="font-rozha text-4xl mb-1"
-					style={{ fontFamily: "'Comic Sans', serif", color: "#FFFFFF" }}
+					style={{
+						fontFamily: "'Comic Sans', serif",
+						color: skin.headingOnDark,
+					}}
 				>
 					{t.galleryTitle}
 				</h2>
@@ -815,7 +899,7 @@ function Gallery({ lang, t }) {
 					className="font-hindi  text-lg mb-3"
 					style={{
 						fontFamily: "'Tiro Devanagari Hindi', serif",
-						color: "rgb(240, 192, 64)",
+						color: skin.headingGold,
 					}}
 				>
 					{t.galleryHindi}
@@ -825,7 +909,7 @@ function Gallery({ lang, t }) {
 					style={{
 						fontFamily: "'Mukta', sans-serif",
 						fontSize: "0.88rem",
-						color: "#ffffff",
+						color: skin.faqHeading,
 						lineHeight: 1.85,
 					}}
 				>
@@ -856,7 +940,7 @@ function Gallery({ lang, t }) {
 				className="text-center mt-4 text-xs font-bold uppercase tracking-widest"
 				style={{
 					fontFamily: "'Mukta', sans-serif",
-					color: "rgb(240, 192, 64)",
+					color: skin.headingGold,
 				}}
 			>
 				←{" "}
@@ -871,10 +955,14 @@ function Gallery({ lang, t }) {
 
 // ── CTA / ORDER SECTION ──
 function OrderCTA({ lang, t, onOrder }) {
+	const { theme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
+	const ctaBg = theme === "light" ? "#e8e0d2" : "#18181b";
 	return (
 		<section
 			id="order"
-			className="py-20 px-6 text-center relative overflow-hidden bg-zinc-900"
+			className="py-20 px-6 text-center relative overflow-hidden"
+			style={{ background: ctaBg }}
 		>
 			<div
 				className="absolute inset-0 opacity-5 pointer-events-none"
@@ -892,18 +980,21 @@ function OrderCTA({ lang, t, onOrder }) {
 						fontSize: "0.9rem",
 					}}
 				>
-					<span style={{ color: "#ffffff" }}>{t.orderTag}</span>
+					<span style={{ color: skin.faqHeading }}>{t.orderTag}</span>
 				</div>
 				<h2
 					className="font-rozha text-4xl mb-1"
-					style={{ fontFamily: "Comic Sans", color: "#ffffff" }}
+					style={{
+						fontFamily: "Comic Sans",
+						color: skin.faqHeading,
+					}}
 				>
 					{t.orderTitle}
 				</h2>
 				<div
 					className="font-hindi  text-xl mb-4"
 					style={{
-						color: "#ffffff",
+						color: skin.faqHeading,
 					}}
 				>
 					{t.orderHindi}
@@ -913,7 +1004,7 @@ function OrderCTA({ lang, t, onOrder }) {
 					style={{
 						fontFamily: "'Mukta', sans-serif",
 						fontSize: "0.88rem",
-						color: "#ffffff",
+						color: skin.faqHeading,
 						lineHeight: 1.85,
 					}}
 				>
@@ -935,6 +1026,7 @@ function OrderCTA({ lang, t, onOrder }) {
 						{t.orderCta}
 					</motion.button>
 					<button
+						type="button"
 						onClick={() =>
 							document
 								.getElementById("products")
@@ -943,18 +1035,21 @@ function OrderCTA({ lang, t, onOrder }) {
 						className="px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all"
 						style={{
 							fontFamily: "'Mukta', sans-serif",
-							color: "#F7EDD8",
-							border: "2px solid rgba(247,237,216,0.35)",
+							color: skin.heroTitle,
+							border: `2px solid ${theme === "light" ? "rgba(28,25,23,0.2)" : "rgba(247,237,216,0.35)"}`,
 						}}
 					>
-						{lang === "en" ? "Browse Products" : "उत्पाद देखें"}
+						{t.browseProductsCta}
 					</button>
 				</div>
 				<p
 					className="mt-5 text-xs"
 					style={{
 						fontFamily: "'Mukta', sans-serif",
-						color: "rgba(247,237,216,0.55)",
+						color:
+							theme === "light"
+								? "rgba(28,25,23,0.55)"
+								: "rgba(247,237,216,0.55)",
 						letterSpacing: "0.04em",
 					}}
 				>
@@ -967,6 +1062,8 @@ function OrderCTA({ lang, t, onOrder }) {
 
 // ── FAQ ──
 function FAQ({ t }) {
+	const { theme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
 	const [open, setOpen] = useState(null);
 	return (
 		<section
@@ -978,7 +1075,10 @@ function FAQ({ t }) {
 				<SectionTag>{t.faqTag}</SectionTag>
 				<h2
 					className="font-rozha text-4xl mb-1"
-					style={{ fontFamily: "'Comic Sans', serif", color: "#ffffff" }}
+					style={{
+						fontFamily: "'Comic Sans', serif",
+						color: skin.faqHeading,
+					}}
 				>
 					{t.faqTitle}
 				</h2>
@@ -986,7 +1086,7 @@ function FAQ({ t }) {
 					className="font-hindi  text-lg mb-3"
 					style={{
 						fontFamily: "'Tiro Devanagari Hindi', serif",
-						color: "#ffffff",
+						color: skin.faqHeading,
 					}}
 				>
 					{t.faqHindi}
@@ -996,7 +1096,7 @@ function FAQ({ t }) {
 					style={{
 						fontFamily: "'Mukta', sans-serif",
 						fontSize: "0.88rem",
-						color: "rgb(240, 192, 64)",
+						color: skin.faqSub,
 						lineHeight: 1.85,
 					}}
 				>
@@ -1011,21 +1111,25 @@ function FAQ({ t }) {
 							style={{
 								border: "1.5px solid #EDD8B0",
 								borderLeft: `4px solid rgb(240, 192, 64)`,
+								background:
+									theme === "light" ? "rgba(255,255,255,0.7)" : "transparent",
 							}}
 						>
 							<button
+								type="button"
 								onClick={() => setOpen(open === i ? null : i)}
 								className="w-full flex items-center justify-between gap-3 p-5 text-left transition-colors"
 								style={{
 									fontSize: "0.95rem",
-									color: "#ffffff",
+									color: skin.faqQ,
 								}}
 							>
 								<span>{faq.q}</span>
 								<motion.span
 									animate={{ rotate: open === i ? 45 : 0 }}
 									transition={{ duration: 0.25 }}
-									className="flex-shrink-0 text-zinc-500"
+									className="flex-shrink-0"
+									style={{ color: skin.bodyMuted }}
 								>
 									<ChevronDown size={18} />
 								</motion.span>
@@ -1043,7 +1147,7 @@ function FAQ({ t }) {
 											className="px-5 pb-5 text-sm font-light leading-relaxed"
 											style={{
 												fontFamily: "'Mukta', sans-serif",
-												color: "rgb(240, 192, 64)",
+												color: skin.faqSub,
 											}}
 										>
 											{faq.a}
@@ -1061,6 +1165,8 @@ function FAQ({ t }) {
 
 // ── FOOTER ──
 function Footer({ lang, t, onOrder }) {
+	const { theme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
 	const router = useRouter();
 	const isHome = router.pathname === "/";
 	const scrollTo = (id) => {
@@ -1071,11 +1177,14 @@ function Footer({ lang, t, onOrder }) {
 		}
 	};
 	return (
-		<footer style={{ background: "#000000" }}>
+		<footer style={{ background: skin.footerBg }}>
 			{/* Top bar */}
 			<div
 				className="flex flex-wrap items-center justify-between gap-4 px-6 py-4"
-				style={{ background: "#000000", borderBottom: "2px solid #27272a" }}
+				style={{
+					background: skin.footerBarBg,
+					borderBottom: "2px solid #27272a",
+				}}
 			>
 				<div>
 					<div
@@ -1091,15 +1200,14 @@ function Footer({ lang, t, onOrder }) {
 						className="text-xs mt-0.5"
 						style={{
 							fontFamily: "'Mukta', sans-serif",
-							color: "rgba(247,237,216,0.55)",
+							color: skin.footerMuted,
 						}}
 					>
-						{lang === "en"
-							? "Handcrafted wool art from Kota, Rajasthan"
-							: "जयपुर, राजस्थान से हस्तनिर्मित ऊन कला"}
+						{t.footerTagline}
 					</div>
 				</div>
 				<button
+					type="button"
 					onClick={onOrder}
 					className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white uppercase tracking-wider"
 					style={{
@@ -1109,7 +1217,7 @@ function Footer({ lang, t, onOrder }) {
 					}}
 				>
 					<MessageCircle size={14} />
-					{lang === "en" ? "Order on WhatsApp" : "WhatsApp पर ऑर्डर"}
+					{t.footerWa}
 				</button>
 			</div>
 			<div className="px-6 py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -1133,12 +1241,10 @@ function Footer({ lang, t, onOrder }) {
 						className="text-xs font-light leading-loose mb-4"
 						style={{
 							fontFamily: "'Mukta', sans-serif",
-							color: "rgba(247,237,216,0.42)",
+							color: skin.footerMuted,
 						}}
 					>
-						{lang === "en"
-							? "Handcrafted wool art — flowers, leaves, boxes and more — made with patience and love in Kota. Every piece tells a story of devotion."
-							: "हस्तनिर्मित ऊनी कला — फूल, पत्तियाँ, डिब्बे और भी — जयपुर में प्यार से बनाई।"}
+						{t.footerBio}
 					</p>
 					<div className="flex gap-2">
 						{[Instagram, Facebook, MessageCircle].map((Icon, i) => (
@@ -1160,7 +1266,7 @@ function Footer({ lang, t, onOrder }) {
 						className="text-sm mb-4 font-yatra"
 						style={{ fontFamily: "'Yatra One', cursive", color: "#F0C040" }}
 					>
-						{lang === "en" ? "Products" : "उत्पाद"}
+						{t.footerColProducts}
 					</h5>
 					<ul className="space-y-2">
 						{PRODUCTS.map((p) => (
@@ -1170,10 +1276,10 @@ function Footer({ lang, t, onOrder }) {
 									className="text-xs font-light hover:text-white transition-colors block"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "rgba(247,237,216,0.42)",
+										color: skin.footerMuted,
 									}}
 								>
-									{p.emoji} {p.name[lang]}
+									{p.emoji} {pickProductName(p.name, lang)}
 								</Link>
 							</li>
 						))}
@@ -1184,38 +1290,36 @@ function Footer({ lang, t, onOrder }) {
 						className="text-sm mb-4 font-yatra"
 						style={{ fontFamily: "'Yatra One', cursive", color: "#F0C040" }}
 					>
-						{lang === "en" ? "Order" : "ऑर्डर"}
+						{t.footerColOrder}
 					</h5>
 					<ul className="space-y-2">
 						{[
-							{ en: "Place an Order", hi: "ऑर्डर करें", action: onOrder },
-							{ en: "Custom Request", hi: "कस्टम ऑर्डर", action: onOrder },
+							{ label: () => t.footerLinkPlaceOrder, action: onOrder },
+							{ label: () => t.footerLinkCustom, action: onOrder },
 							{
-								en: "Shipping Info",
-								hi: "शिपिंग जानकारी",
+								label: () => t.footerLinkShipping,
 								action: () => scrollTo("faq"),
 							},
 							{
-								en: "Shaadi / Bulk",
-								hi: "शादी / बल्क",
+								label: () => t.footerLinkBulk,
 								action: () => scrollTo("faq"),
 							},
 							{
-								en: "Payments / UPI",
-								hi: "UPI भुगतान",
+								label: () => t.footerLinkPay,
 								action: () => scrollTo("faq"),
 							},
 						].map((item, i) => (
 							<li key={i}>
 								<button
+									type="button"
 									onClick={item.action}
 									className="text-xs font-light hover:text-white transition-colors"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "rgba(247,237,216,0.42)",
+										color: skin.footerMuted,
 									}}
 								>
-									{item[lang]}
+									{item.label()}
 								</button>
 							</li>
 						))}
@@ -1226,27 +1330,23 @@ function Footer({ lang, t, onOrder }) {
 						className="text-sm mb-4 font-yatra"
 						style={{ fontFamily: "'Yatra One', cursive", color: "#F0C040" }}
 					>
-						{lang === "en" ? "Contact" : "संपर्क"}
+						{t.footerColContact}
 					</h5>
 					<div className="space-y-2.5">
 						{[
 							{
 								icon: MapPin,
-								text:
-									lang === "en"
-										? "Kota, Rajasthan 302001"
-										: "जयपुर, राजस्थान 302001",
+								text: t.footerLocation,
 							},
 							{ icon: Phone, text: "+91 9413732541" },
 							{ icon: Mail, text: "hello@wool-craft.vercel.app" },
 							{
 								icon: Clock,
-								text:
-									lang === "en" ? "Mon–Sat · 10am–7pm" : "सोम–शनि · 10–7 बजे",
+								text: t.footerHours,
 							},
 							{
 								icon: MessageCircle,
-								text: lang === "en" ? "WhatsApp preferred" : "WhatsApp पसंदीदा",
+								text: t.footerWaHint,
 							},
 						].map(({ icon: Icon, text }, i) => (
 							<div key={i} className="flex items-start gap-2">
@@ -1259,7 +1359,7 @@ function Footer({ lang, t, onOrder }) {
 									className="text-xs font-light"
 									style={{
 										fontFamily: "'Mukta', sans-serif",
-										color: "rgba(247,237,216,0.42)",
+										color: skin.footerMuted,
 									}}
 								>
 									{text}
@@ -1275,23 +1375,20 @@ function Footer({ lang, t, onOrder }) {
 					className="text-xs"
 					style={{
 						fontFamily: "'Mukta', sans-serif",
-						color: "rgba(247,237,216,0.22)",
+						color: skin.footerCopyright,
 						letterSpacing: "0.06em",
 					}}
 				>
-					© 2025 woolcraft.{" "}
-					{lang === "en" ? "All rights reserved." : "सर्वाधिकार सुरक्षित।"}
+					© 2025 woolcraft. {t.footerRights}
 				</p>
 				<p
 					className="text-xs"
 					style={{
 						fontFamily: "'Mukta', sans-serif",
-						color: "rgba(247,237,216,0.22)",
+						color: skin.footerCopyright,
 					}}
 				>
-					{lang === "en"
-						? "Made with 🧶 & ❤️ in Bharat 🇮🇳"
-						: "🇮🇳 भारत में 🧶 और ❤️ से बनाया गया"}
+					{t.footerMadeIn}
 				</p>
 			</div>
 		</footer>
@@ -1514,7 +1611,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									<option value="">{om.selectPlaceholder}</option>
 									{PRODUCTS.map((p) => (
 										<option key={p.id} value={p.id}>
-											{p.emoji} {p.name[lang]} — ₹{p.price}
+											{p.emoji} {pickProductName(p.name, lang)} — ₹{p.price}
 										</option>
 									))}
 								</select>
@@ -1559,7 +1656,7 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 											}}
 										>
 											<span>{p.emoji}</span>
-											<span>{p.name[lang]}</span>
+											<span>{pickProductName(p.name, lang)}</span>
 										</button>
 									))}
 								</div>
@@ -1577,7 +1674,10 @@ function OrderModal({ lang, t, open, onClose, preselect }) {
 									}}
 								>
 									{[
-										[om.product, `${selected.emoji} ${selected.name[lang]}`],
+										[
+											om.product,
+											`${selected.emoji} ${pickProductName(selected.name, lang)}`,
+										],
 										[om.price, `₹${selected.price}`],
 										[om.delivery, om.deliveryVal],
 										[om.total, `₹${selected.price}+`],
@@ -1794,7 +1894,9 @@ export function WoolcraftProductPage({ product }) {
 	const [orderModal, setOrderModal] = useState(false);
 	const [orderPreselect, setOrderPreselect] = useState(product.id);
 	const [canNativeShare, setCanNativeShare] = useState(false);
-	const t = T[lang];
+	const { theme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
+	const t = T[lang] ?? T.en;
 	const pp = t.productPage;
 	const base = getSiteUrl();
 	const pageUrl = `${base}/product/${product.slug}`;
@@ -1847,10 +1949,13 @@ export function WoolcraftProductPage({ product }) {
 	return (
 		<div
 			className="font-mukta"
-			style={{ fontFamily: "'Mukta', sans-serif", background: "#000000" }}
+			style={{
+				fontFamily: "'Mukta', sans-serif",
+				background: skin.pageBg,
+			}}
 		>
 			<Head>
-				<title>{`${product.name.en} — woolcraft · handmade wool art Kota`}</title>
+				<title>{`${pickProductName(product.name, "en")} — woolcraft · handmade wool art Kota`}</title>
 				<meta name="description" content={product.desc.en} />
 				<link rel="canonical" href={pageUrl} />
 				<meta property="og:type" content="website" />
@@ -1872,7 +1977,7 @@ export function WoolcraftProductPage({ product }) {
 			<div style={{ paddingTop: "78px" }}>
 				<section
 					className="py-10 px-6 max-w-3xl mx-auto"
-					style={{ background: "#000000" }}
+					style={{ background: skin.sectionBg }}
 				>
 					<Link
 						href="/"
@@ -1887,7 +1992,7 @@ export function WoolcraftProductPage({ product }) {
 					</Link>
 					<FadeInSection>
 						<SectionTag>
-							<span style={{ color: "#ffffff" }}>{pp.tag}</span>
+							<span style={{ color: skin.headingOnDark }}>{pp.tag}</span>
 						</SectionTag>
 						<div
 							className={`relative aspect-[4/3] max-h-[420px] bg-gradient-to-br ${product.bg} rounded-sm overflow-hidden mb-6`}
@@ -1910,14 +2015,17 @@ export function WoolcraftProductPage({ product }) {
 									border: "1px solid #A83030",
 								}}
 							>
-								{product.badge[lang].replace("\n", " ")}
+								{pickLocalized(product.badge, lang).replace("\n", " ")}
 							</div>
 						)}
 						<h1
 							className="font-rozha text-3xl md:text-4xl mb-1"
-							style={{ fontFamily: "'Comic Sans', serif", color: "#F7EDD8" }}
+							style={{
+								fontFamily: "'Comic Sans', serif",
+								color: skin.heroTitle,
+							}}
 						>
-							{product.name[lang]}
+							{pickProductName(product.name, lang)}
 						</h1>
 						<div
 							className="font-hindi text-base mb-4"
@@ -1926,49 +2034,52 @@ export function WoolcraftProductPage({ product }) {
 								color: "rgb(240, 192, 64)",
 							}}
 						>
-							{product.name[lang === "en" ? "hi" : "en"]}
+							{pickProductSubtitle(product.name, lang)}
 						</div>
 						<p
 							className="text-sm font-light leading-loose mb-6"
 							style={{
 								fontFamily: "'Mukta', sans-serif",
-								color: "rgba(247,237,216,0.75)",
+								color: skin.bodyMuted,
 							}}
 						>
-							{product.fullDesc[lang]}
+							{pickLocalized(product.fullDesc, lang)}
 						</p>
 						<div className="grid grid-cols-2 gap-2 mb-8">
-							{product.details.map((d, i) => (
-								<div
-									key={i}
-									className="p-3"
-									style={{
-										background: "#F7EDD8",
-										border: "1px solid #EDD8B0",
-										borderLeft: "3px solid rgb(240, 192, 64)",
-									}}
-								>
+							{product.details.map((d, i) => {
+								const [dk, dv] = pickDetailPair(d, lang);
+								return (
 									<div
-										className="text-xs uppercase tracking-wider font-bold mb-1"
+										key={i}
+										className="p-3"
 										style={{
-											fontFamily: "'Mukta', sans-serif",
-											color: "rgb(240, 192, 64)",
-											letterSpacing: "0.14em",
+											background: "#F7EDD8",
+											border: "1px solid #EDD8B0",
+											borderLeft: "3px solid rgb(240, 192, 64)",
 										}}
 									>
-										{d[lang][0]}
+										<div
+											className="text-xs uppercase tracking-wider font-bold mb-1"
+											style={{
+												fontFamily: "'Mukta', sans-serif",
+												color: "rgb(240, 192, 64)",
+												letterSpacing: "0.14em",
+											}}
+										>
+											{dk}
+										</div>
+										<div
+											className="text-sm font-bold"
+											style={{
+												fontFamily: "'Mukta', sans-serif",
+												color: "#1A0A00",
+											}}
+										>
+											{dv}
+										</div>
 									</div>
-									<div
-										className="text-sm font-bold"
-										style={{
-											fontFamily: "'Mukta', sans-serif",
-											color: "#1A0A00",
-										}}
-									>
-										{d[lang][1]}
-									</div>
-								</div>
-							))}
+								);
+							})}
 						</div>
 						<div
 							className="flex flex-wrap items-center justify-between gap-4 p-4 mb-8"
@@ -1990,7 +2101,7 @@ export function WoolcraftProductPage({ product }) {
 									color: "rgb(240, 192, 64)",
 								}}
 							>
-								{product.priceNote[lang]}
+								{pickLocalized(product.priceNote, lang)}
 							</div>
 						</div>
 						<div className="flex flex-wrap gap-3 mb-6">
@@ -2058,12 +2169,15 @@ export function WoolcraftProductPage({ product }) {
 					</FadeInSection>
 				</section>
 				<RangoliBorder />
-				<section className="py-16 px-6" style={{ background: "#000000" }}>
+				<section className="py-16 px-6" style={{ background: skin.sectionBg }}>
 					<div className="max-w-7xl mx-auto">
 						<FadeInSection>
 							<h2
 								className="font-rozha text-2xl md:text-3xl mb-8 text-center"
-								style={{ fontFamily: "'Comic Sans', serif", color: "#FFFFFF" }}
+								style={{
+									fontFamily: "'Comic Sans', serif",
+									color: skin.headingOnDark,
+								}}
 							>
 								{pp.similar}
 							</h2>
@@ -2097,8 +2211,10 @@ export default function WoolcraftHomePage() {
 	const [lang, setLang] = useState("en");
 	const [orderModal, setOrderModal] = useState(false);
 	const [orderPreselect, setOrderPreselect] = useState(-1);
+	const { theme } = useWoolcraftTheme();
+	const skin = marketingSkin(theme);
 
-	const t = T[lang];
+	const t = T[lang] ?? T.en;
 
 	const openOrder = (preselect) => {
 		if (preselect !== undefined) setOrderPreselect(preselect);
@@ -2114,7 +2230,10 @@ export default function WoolcraftHomePage() {
 	return (
 		<div
 			className="font-mukta"
-			style={{ fontFamily: "'Mukta', sans-serif", background: "#000000" }}
+			style={{
+				fontFamily: "'Mukta', sans-serif",
+				background: skin.pageBg,
+			}}
 		>
 			<Head>
 				<title>woolcraft — Handmade wool art from Kota, Rajasthan</title>
